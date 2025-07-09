@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+
+    <context id="mysqlTables" targetRuntime="MyBatis3" defaultModelType="flat">
+
+        <!-- 默认的生成器
+        generatorConfiguration 标签是根标签，用于定义整个配置文件的内容。
+context 标签定义了一个上下文，用于指定生成代码的一些全局配置和规则。
+id 属性指定了上下文的唯一标识符，这里是 mysqlTables。
+targetRuntime 属性指定了生成代码的目标运行时环境，这里是 MyBatis3。
+defaultModelType 属性指定了生成代码时默认的模型类型，这里是 flat，表示生成的实体类是扁平化的。
+property 标签用于配置一些属性。
+autoDelimitKeywords 属性设置为 true 表示自动检查关键字，为关键字增加反引号。
+beginningDelimiter 和 endingDelimiter 属性指定了起始和结束的引号。
+javaFileEncoding 属性指定了生成的 Java 文件的编码为 UTF-8。
+commentGenerator 标签用于配置注释生成器，这里设置 suppressAllComments 属性为 true 表示不生成任何注释。
+jdbcConnection 标签用于配置数据库连接信息，包括驱动类、连接 URL、用户名和密码。
+javaTypeResolver 标签用于配置 Java 类型解析器，这里设置 forceBigDecimals 属性为 false 表示不强制将所有的数值类型映射为 Java 的 BigDecimal 类型。
+javaModelGenerator 标签用于配置生成的 DO 实体类存放路径。
+sqlMapGenerator 标签用于配置生成的 Mapper XML 文件存放路径。
+javaClientGenerator 标签用于配置生成的 Mapper 接口存放路径。
+table 标签用于指定需要生成的表和对应的实体类。
+tableName 属性指定了数据库中的表名。
+domainObjectName 属性指定了生成的实体类的名称。
+enableCountByExample、enableUpdateByExample、enableDeleteByExample、enableSelectByExample 属性用于指定是否启用相关方法的生成。
+selectByExampleQueryId 属性用于指定是否生成查询方法的 ID。
+         -->
+        <!-- 自动检查关键字，为关键字增加反引号，如：`type` -->
+        <property name="autoDelimitKeywords" value="true"/>
+        <property name="beginningDelimiter" value="`"/>
+        <property name="endingDelimiter" value="`"/>
+        <!-- 指定生成的 Java 文件编码 -->
+        <property name="javaFileEncoding" value="UTF-8"/>
+
+        <!-- 对生成的注释进行控制 -->
+        <commentGenerator>
+            <!-- 由于此插件生成的注释不太美观，这里设置不生成任何注释 -->
+            <property name="suppressAllComments" value="true"/>
+        </commentGenerator>
+
+        <!-- 数据库链接 -->
+        <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
+                        connectionURL="jdbc:mysql://192.168.23.200:3306/redbook"
+                        userId="root"
+                        password="123456">
+            <!-- 解决多个重名的表生成表结构不一致问题 -->
+            <property name="nullCatalogMeansCurrent" value="true"/>
+        </jdbcConnection>
+
+        <!-- 不强制将所有的数值类型映射为 Java 的 BigDecimal 类型 -->
+        <javaTypeResolver>
+            <property name="forceBigDecimals" value="false"/>
+        </javaTypeResolver>
+
+        <!-- DO 实体类存放路径 -->
+        <javaModelGenerator targetPackage="com.lavy.redbook.auth.domain.dataobject"
+                            targetProject="src/main/java"/>
+
+        <!-- Mapper xml 文件存放路径-->
+        <sqlMapGenerator targetPackage="mapper"
+                         targetProject="src/main/resources"/>
+
+        <!-- Mapper 接口存放路径 -->
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.lavy.redbook.auth.domain.mapper"
+                             targetProject="src/main/java"/>
+
+        <!-- 需要生成的表-实体类 -->
+        <table tableName="t_user" domainObjectName="UserDO"
+               enableCountByExample="false"
+               enableUpdateByExample="false"
+               enableDeleteByExample="false"
+               enableSelectByExample="false"
+               selectByExampleQueryId="false"/>
+    </context>
+</generatorConfiguration>
