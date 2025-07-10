@@ -4,3 +4,13 @@ server:
 spring:
   profiles:
     active: dev # 默认激活 dev 本地开发环境
+
+############## Sa-Token 配置 (文档: https://sa-token.cc) ##############
+sa-token:
+  token-name: redbooktoken # token 名称
+  timeout: 2592000 # token 过期时间
+  active-timeout: -1 # 账号有效时间
+  is-concurrent: true # 是否允许同一账号多设备登录
+  is-share: true # 是否共享 token
+  token-style: uuid # token 生成样式
+  is-log: true # 是否打印日志
