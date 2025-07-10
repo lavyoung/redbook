@@ -68,7 +68,7 @@ public class AuthExceptionHandler {
         });
         // 构建返回参数
         String errorMessage = stringBuilder.toString();
-        log.warn("{} request fail, errorCode: {}, errorMessage:{}", request.getRequestURI(), errorCode, errorMessage);
+        log.warn("{} request fail, error: ", request.getRequestURI(), e);
         log.warn("r", e);
         return Response.fail(errorCode, errorMessage);
     }
@@ -83,8 +83,7 @@ public class AuthExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseBody
     public Response<Object> handleException(HttpServletRequest request, Exception e) {
-        log.warn("{} request fail, errorCode: {}, errorMessage:{}", request.getRequestURI(),
-                ResponseCodeEnum.SYSTEM_ERROR.getErrorCode(), e.getMessage());
+        log.warn("{} request fail, error", request.getRequestURI(), e);
         return Response.fail(ResponseCodeEnum.SYSTEM_ERROR);
     }
 }

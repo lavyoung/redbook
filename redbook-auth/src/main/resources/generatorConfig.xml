@@ -68,7 +68,7 @@ selectByExampleQueryId 属性用于指定是否生成查询方法的 ID。
                              targetProject="src/main/java"/>
 
         <!-- 需要生成的表-实体类 -->
-        <table tableName="t_user" domainObjectName="UserDO"
+        <table tableName="t_user" domainObjectName="User"
                enableCountByExample="false"
                enableUpdateByExample="false"
                enableDeleteByExample="false"

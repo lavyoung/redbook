@@ -1,6 +1,7 @@
 package com.lavy.redbook.auth.controller;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.lavy.redbook.auth.domain.dataobject.UserDO;
-import com.lavy.redbook.auth.domain.mapper.UserDOMapper;
+import com.lavy.redbook.auth.domain.dataobject.User;
+import com.lavy.redbook.auth.domain.mapper.UserMapper;
 import com.lavy.redbook.framework.biz.operationlog.aspect.ApiOperationLog;
 import com.lavy.redbook.framework.common.response.Response;
 
@@ -27,7 +28,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TestController {
 
-    private final UserDOMapper userMapper;
+    private final UserMapper userMapper;
 
     @GetMapping("/test")
     @ApiOperationLog(description = "测试接口")
@@ -41,14 +42,14 @@ public class TestController {
     @GetMapping("/test2")
     public Object test1() {
         userMapper.insert(
-                UserDO.builder().username("lavy").createTime(LocalDateTime.now()).updateTime(LocalDateTime.now())
+                User.builder().nickname("lavy").createTime(new Date()).updateTime(new Date())
                         .build());
         return null;
     }
 
     @PostMapping("/test3")
     @ApiOperationLog(description = "测试接口2")
-    public Response<UserDO> test2(@RequestBody UserDO user) {
+    public Response<User> test2(@RequestBody User user) {
         return Response.success(user);
     }
 
