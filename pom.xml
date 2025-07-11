@@ -45,6 +45,7 @@
         <guava.version>33.0.0-jre</guava.version>
         <hutool.version>5.8.26</hutool.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
+        <aliyun.sms.version>4.1.2</aliyun.sms.version>
     </properties>
     <!-- 统一依赖管理 -->
     <dependencyManagement>
@@ -127,6 +128,11 @@
                 <artifactId>sa-token-spring-boot3-starter</artifactId>
                 <version>${sa-token.version}</version>
             </dependency>
+            <dependency>
+                <groupId>cn.dev33</groupId>
+                <artifactId>sa-token-redis-jackson</artifactId>
+                <version>${sa-token.version}</version>
+            </dependency>
             <!-- 相关工具类 -->
             <dependency>
                 <groupId>com.google.guava</groupId>
@@ -142,6 +148,11 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${commons-lang3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.aliyun</groupId>
+                <artifactId>dysmsapi20170525</artifactId>
+                <version>${aliyun.sms.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

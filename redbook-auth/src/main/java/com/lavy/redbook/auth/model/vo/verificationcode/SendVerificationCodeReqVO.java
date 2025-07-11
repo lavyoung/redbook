@@ -3,6 +3,8 @@ package com.lavy.redbook.auth.model.vo.verificationcode;
 import java.io.Serial;
 import java.io.Serializable;
 
+import com.lavy.redbook.framework.common.validator.PhoneNumber;
+
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,6 +24,7 @@ public class SendVerificationCodeReqVO implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @NotBlank(message = "手机号不能为空")
+    @PhoneNumber
+    @NotBlank(message = "手机号码不能为空")
     private String phone;
 }
