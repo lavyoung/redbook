@@ -14,7 +14,7 @@ public class RedisKeyConstants {
     /**
      * 用户全局 ID 生成器 KEY
      */
-    public static final String REDBOOK_ID_GENERATOR_KEY = "redbook_id_generator";
+    public static final String REDBOOK_ID_GENERATOR_KEY = "redbook.id.generator";
 
     /**
      * 用户角色数据 KEY 前缀

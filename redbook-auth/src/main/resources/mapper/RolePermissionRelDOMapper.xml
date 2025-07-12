@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.lavy.redbook.auth.domain.mapper.UserPermissionRelDOMapper">
-    <resultMap id="BaseResultMap" type="com.lavy.redbook.auth.domain.dataobject.UserPermissionRelDO">
+<mapper namespace="com.lavy.redbook.auth.domain.mapper.RolePermissionRelDOMapper">
+    <resultMap id="BaseResultMap" type="com.lavy.redbook.auth.domain.dataobject.RolePermissionRelDO">
         <id column="id" jdbcType="BIGINT" property="id"/>
         <result column="role_id" jdbcType="BIGINT" property="roleId"/>
         <result column="permission_id" jdbcType="BIGINT" property="permissionId"/>
@@ -19,7 +19,7 @@
         from t_role_permission_rel
         where id = #{id,jdbcType=BIGINT}
     </select>
-    <select id="selectByRoleIds" resultType="com.lavy.redbook.auth.domain.dataobject.UserPermissionRelDO">
+    <select id="selectByRoleIds" resultType="com.lavy.redbook.auth.domain.dataobject.RolePermissionRelDO">
         select role_id, permission_id
         from t_role_permission_rel
         where role_id in
@@ -32,13 +32,13 @@
         from t_role_permission_rel
         where id = #{id,jdbcType=BIGINT}
     </delete>
-    <insert id="insert" parameterType="com.lavy.redbook.auth.domain.dataobject.UserPermissionRelDO">
+    <insert id="insert" parameterType="com.lavy.redbook.auth.domain.dataobject.RolePermissionRelDO">
         insert into t_role_permission_rel (id, role_id, permission_id,
                                            create_time, update_time, is_deleted)
         values (#{id,jdbcType=BIGINT}, #{roleId,jdbcType=BIGINT}, #{permissionId,jdbcType=BIGINT},
                 #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{isDeleted,jdbcType=BIT})
     </insert>
-    <insert id="insertSelective" parameterType="com.lavy.redbook.auth.domain.dataobject.UserPermissionRelDO">
+    <insert id="insertSelective" parameterType="com.lavy.redbook.auth.domain.dataobject.RolePermissionRelDO">
         insert into t_role_permission_rel
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">
@@ -82,7 +82,7 @@
         </trim>
     </insert>
     <update id="updateByPrimaryKeySelective"
-            parameterType="com.lavy.redbook.auth.domain.dataobject.UserPermissionRelDO">
+            parameterType="com.lavy.redbook.auth.domain.dataobject.RolePermissionRelDO">
         update t_role_permission_rel
         <set>
             <if test="roleId != null">
@@ -103,7 +103,7 @@
         </set>
         where id = #{id,jdbcType=BIGINT}
     </update>
-    <update id="updateByPrimaryKey" parameterType="com.lavy.redbook.auth.domain.dataobject.UserPermissionRelDO">
+    <update id="updateByPrimaryKey" parameterType="com.lavy.redbook.auth.domain.dataobject.RolePermissionRelDO">
         update t_role_permission_rel
         set role_id       = #{roleId,jdbcType=BIGINT},
             permission_id = #{permissionId,jdbcType=BIGINT},

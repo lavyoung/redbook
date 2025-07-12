@@ -93,7 +93,7 @@ selectByExampleQueryId 属性用于指定是否生成查询方法的 ID。
                enableDeleteByExample="false"
                enableSelectByExample="false"
                selectByExampleQueryId="false"/>
-        <table tableName="t_role_permission_rel" domainObjectName="UserPermissionRelDO"
+        <table tableName="t_role_permission_rel" domainObjectName="RolePermissionRelDO"
                enableCountByExample="false"
                enableUpdateByExample="false"
                enableDeleteByExample="false"

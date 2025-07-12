@@ -3,8 +3,10 @@ package com.lavy.redbook.auth.enums;
 import com.lavy.redbook.framework.common.exception.BaseExceptionInterface;
 
 /**
- * @author lavyoung1325 <2034549297@qq.com>
- * Created on 2025-07-10
+ * @author <a href="lavyoung1325@outlook.com">lavy</a>
+ * @date: 2025/7/10
+ * @version: v1.0.0
+ * @description: 角色DOMapper
  */
 public enum ResponseCodeEnum implements BaseExceptionInterface {
     // ----------- 通用异常状态码 -----------

@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = false)
 @Builder
 @TableName("t_user_permission_rel")
-public class UserPermissionRelDO {
+public class RolePermissionRelDO {
     @TableId
     private Long id;
 
