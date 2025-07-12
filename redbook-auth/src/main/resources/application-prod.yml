@@ -2,7 +2,7 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver # 指定数据库驱动类
     # 数据库连接信息
-    url: jdbc:mysql://192.168.23.200:3306/redbook?useUnicode=true&characterEncoding=utf-8&autoReconnect=true&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/redbook?useUnicode=true&characterEncoding=utf-8&autoReconnect=true&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root # 数据库用户名
     password: alZebVUQoo8Hokt8BCCe8Vmqhlx02C+rdvRsxUWDQRnVzV3LtaiSUpl71IBF0lrhpAtIG1jYAhL6m7Fjopbxhw== # 数据库密码123456
     type: com.alibaba.druid.pool.DruidDataSource
@@ -43,7 +43,7 @@ spring:
   data:
     redis:
       database: 0
-      host: 192.168.23.200
+      host: localhost
       port: 6379
       password: infini_rag_flow
       timeout: 5s
@@ -60,4 +60,3 @@ spring:
 logging:
   level:
     com.lavy.redbook.auth.domain.mapper: debug
-    org.springframework.boot.context.properties: DEBUG

@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: redbook-auth
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      config:
+        server-addr: 192.168.23.200:8848
+        username: nacos
+        password: nacos
+        namespace: dev
+        group: DEFAULT_GROUP
+        data-id: ${spring.application.name}
+        file-extension: yaml
+        refresh-enabled: true
+      discovery:
+        enabled: true
+        server-addr: ${spring.cloud.nacos.config.server-addr}
+        username: ${spring.cloud.nacos.config.username}
+        password: ${spring.cloud.nacos.config.password}
+        namespace: ${spring.cloud.nacos.config.namespace}

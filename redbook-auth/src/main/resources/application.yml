@@ -14,3 +14,6 @@ sa-token:
   is-share: true # 是否共享 token
   token-style: uuid # token 生成样式
   is-log: true # 是否打印日志
+
+alarm:
+  type: email

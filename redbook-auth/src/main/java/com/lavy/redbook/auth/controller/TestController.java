@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.lavy.redbook.auth.alarm.AlarmConfig;
 import com.lavy.redbook.auth.domain.dataobject.UserDO;
 import com.lavy.redbook.auth.domain.mapper.UserDOMapper;
 import com.lavy.redbook.framework.biz.operationlog.aspect.ApiOperationLog;
@@ -28,6 +29,8 @@ import lombok.RequiredArgsConstructor;
 public class TestController {
 
     private final UserDOMapper userMapper;
+
+    private final AlarmConfig alarmConfig;
 
     @GetMapping("/test")
     @ApiOperationLog(description = "测试接口")
@@ -67,5 +70,10 @@ public class TestController {
     @RequestMapping("/user/isLogin")
     public String isLogin() {
         return "当前会话是否登录：" + StpUtil.isLogin();
+    }
+
+    @GetMapping("/alarm/type")
+    public String alarmType() {
+        return "当前报警类型：" + alarmConfig.alarmHelper().send("测试报警");
     }
 }
