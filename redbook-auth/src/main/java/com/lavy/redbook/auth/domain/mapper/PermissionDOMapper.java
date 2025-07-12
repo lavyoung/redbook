@@ -1,5 +1,7 @@
 package com.lavy.redbook.auth.domain.mapper;
 
+import java.util.List;
+
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.lavy.redbook.auth.domain.dataobject.PermissionDO;
 
@@ -59,4 +61,11 @@ public interface PermissionDOMapper extends BaseMapper<PermissionDO> {
      * @return 更新结果
      */
     int updateByPrimaryKey(PermissionDO record);
+
+    /**
+     * 查询 APP 端所有被启用的权限
+     *
+     * @return 权限列表
+     */
+    List<PermissionDO> selectAppEnabledList();
 }

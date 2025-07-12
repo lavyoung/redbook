@@ -74,6 +74,21 @@ public class AuthExceptionHandler {
     }
 
     /**
+     * 参数校验异常处理
+     *
+     * @param e 参数校验异常
+     * @param request 请求
+     * @return 响应
+     */
+    @ExceptionHandler(value = {IllegalArgumentException.class})
+    @ResponseBody
+    public Response<Object> handleIllegalArgumentException(HttpServletRequest request, IllegalArgumentException e) {
+        log.warn("{} request error, errorCode: {}, errorMessage: {}", request.getRequestURI(),
+                ResponseCodeEnum.PARAM_NOT_VALID.getErrorCode(), e.getMessage());
+        return Response.fail(ResponseCodeEnum.PARAM_NOT_VALID.getErrorCode(), e.getMessage());
+    }
+
+    /**
      * 捕获其他异常
      *
      * @param request 请求

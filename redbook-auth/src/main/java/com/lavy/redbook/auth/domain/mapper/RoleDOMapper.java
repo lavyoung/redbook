@@ -1,5 +1,7 @@
 package com.lavy.redbook.auth.domain.mapper;
 
+import java.util.List;
+
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.lavy.redbook.auth.domain.dataobject.RoleDO;
 
@@ -59,4 +61,11 @@ public interface RoleDOMapper extends BaseMapper<RoleDO> {
      * @return 插入数量
      */
     int updateByPrimaryKey(RoleDO record);
+
+    /**
+     * 查询所有启用的角色
+     *
+     * @return 角色列表
+     */
+    List<RoleDO> selectEnableRoles();
 }
