@@ -13,6 +13,11 @@ public enum ResponseCodeEnum implements BaseExceptionInterface {
 
     // ----------- 业务异常状态码 -----------
     VERIFICATION_CODE_SEND_FREQUENTLY("AUTH-20000", "请求太频繁，请3分钟后再试"),
+    VERIFICATION_CODE_ERROR("AUTH-20001", "验证码错误"),
+    USER_NOT_EXIST("AUTH-20002", "用户不存在"),
+    USER_EXIST("AUTH-20003", "用户已存在"),
+    USER_PASSWORD_ERROR("AUTH-20004", "用户密码错误"),
+    VERIFICATION_CODE_NOT_EXIST("AUTH-20005", "验证码失效"),
     ;
 
     private final String errorCode;
