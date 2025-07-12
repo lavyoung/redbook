@@ -1,6 +1,7 @@
 package com.lavy.redbook.auth.controller;
 
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,6 +12,7 @@ import com.lavy.redbook.auth.service.UserService;
 import com.lavy.redbook.framework.biz.operationlog.aspect.ApiOperationLog;
 import com.lavy.redbook.framework.common.response.Response;
 
+import cn.dev33.satoken.stp.StpUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,5 +35,12 @@ public class UserController {
     @ApiOperationLog(description = "用户登录/注册")
     public Response<?> doLogin(@Validated @RequestBody UserLoginReqVO reqVO) {
         return userService.doLogin(reqVO);
+    }
+
+    @GetMapping("/logout")
+    @ApiOperationLog(description = "用户登出")
+    public Response<?> logout() {
+        StpUtil.logout();
+        return Response.success();
     }
 }

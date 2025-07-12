@@ -15,6 +15,7 @@
     <modules>
         <module>redbook-auth</module>
         <module>redbook-framework</module>
+        <module>redbook-gateway</module>
     </modules>
 
     <packaging>pom</packaging>
@@ -115,6 +116,11 @@
             <dependency>
                 <groupId>cn.dev33</groupId>
                 <artifactId>sa-token-spring-boot3-starter</artifactId>
+                <version>${sa-token.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.dev33</groupId>
+                <artifactId>sa-token-reactor-spring-boot3-starter</artifactId>
                 <version>${sa-token.version}</version>
             </dependency>
             <dependency>

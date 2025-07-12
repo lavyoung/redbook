@@ -1,0 +1,23 @@
+server:
+  port: 8000
+
+############## Sa-Token 配置 (文档: https://sa-token.cc) ##############
+sa-token:
+  token-name: redbooktoken # token 名称
+  timeout: 2592000 # token 过期时间
+  active-timeout: -1 # 账号有效时间
+  is-concurrent: true # 是否允许同一账号多设备登录
+  is-share: true # 是否共享 token
+  token-style: uuid # token 生成样式
+  is-log: true # 是否打印日志
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: redbook-user
+          uri: lb://redbook-auth # 定义了请求将被路由到的目标服务地址。这里使用 lb://xiaohashu-auth，其中 lb 代表的是负载均衡（Load Balancer），xiaohashu-auth 是认证服务的名称。Spring Cloud Gateway 会使用注册中心（如 Nacos ）来解析并负载均衡到具体的服务实例L
+          predicates:
+            - Path=/auth/** # 匹配路径
+          filters:
+            - StripPrefix=1 # 移除前缀 auth
