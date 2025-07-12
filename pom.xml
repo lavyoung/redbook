@@ -35,7 +35,6 @@
         <spring-cloud-alibaba.version>2023.0.0.0-RC1</spring-cloud-alibaba.version>
         <spring-cloud.version>2023.0.0</spring-cloud.version>
         <lombok.version>1.18.30</lombok.version>
-        <jackson.version>2.19.0</jackson.version>
         <mysql.version>8.3.0</mysql.version>
         <druid.version>1.2.21</druid.version>
         <mybatis-plus-boot-starter.version>3.5.12</mybatis-plus-boot-starter.version>
@@ -95,16 +94,6 @@
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-core</artifactId>
-                <version>${jackson.version}</version>
             </dependency>
             <!-- Mybatis -->
             <dependency>
