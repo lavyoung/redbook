@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.lavy.redbook.framework.biz.operationlog.aspect.ApiOperationLog;
 import com.lavy.redbook.framework.common.response.Response;
+import com.lavy.redbook.user.api.dto.req.FindUserByPhoneReqDTO;
 import com.lavy.redbook.user.api.dto.req.RegisterUserReqDTO;
+import com.lavy.redbook.user.api.dto.resp.FindUserByPhoneRspDTO;
 import com.lavy.redbook.user.biz.model.vo.UpdateUserInfoReqVO;
 import com.lavy.redbook.user.biz.service.UserService;
 
@@ -47,5 +49,12 @@ public class UserController {
     @ApiOperationLog(description = "用户注册")
     public Response<Long> register(@Validated @RequestBody RegisterUserReqDTO registerUserReqDTO) {
         return userService.register(registerUserReqDTO);
+    }
+
+    @PostMapping("/findByPhone")
+    @ApiOperationLog(description = "手机号查询用户信息")
+    public Response<FindUserByPhoneRspDTO> findByPhone(
+            @Validated @RequestBody FindUserByPhoneReqDTO findUserByPhoneReqDTO) {
+        return userService.findByPhone(findUserByPhoneReqDTO);
     }
 }

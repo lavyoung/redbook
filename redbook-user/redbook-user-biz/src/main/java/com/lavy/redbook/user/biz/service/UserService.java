@@ -2,7 +2,9 @@ package com.lavy.redbook.user.biz.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lavy.redbook.framework.common.response.Response;
+import com.lavy.redbook.user.api.dto.req.FindUserByPhoneReqDTO;
 import com.lavy.redbook.user.api.dto.req.RegisterUserReqDTO;
+import com.lavy.redbook.user.api.dto.resp.FindUserByPhoneRspDTO;
 import com.lavy.redbook.user.biz.domain.dataobject.UserDO;
 import com.lavy.redbook.user.biz.model.vo.UpdateUserInfoReqVO;
 
@@ -29,4 +31,13 @@ public interface UserService extends IService<UserDO> {
      * @return 注册结果
      */
     Response<Long> register(RegisterUserReqDTO registerUserReqDTO);
+
+    /**
+     * 通过手机号查询用户信息
+     *
+     * @param findUserByPhoneReqDTO 查询用户信息请求参数
+     * @return 用户信息
+     */
+    Response<FindUserByPhoneRspDTO> findByPhone(FindUserByPhoneReqDTO findUserByPhoneReqDTO);
+
 }

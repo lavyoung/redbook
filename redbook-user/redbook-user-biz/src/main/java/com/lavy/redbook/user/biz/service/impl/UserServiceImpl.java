@@ -23,7 +23,9 @@ import com.lavy.redbook.framework.common.exception.BizException;
 import com.lavy.redbook.framework.common.response.Response;
 import com.lavy.redbook.framework.common.util.JsonUtils;
 import com.lavy.redbook.framework.common.util.ParamUtils;
+import com.lavy.redbook.user.api.dto.req.FindUserByPhoneReqDTO;
 import com.lavy.redbook.user.api.dto.req.RegisterUserReqDTO;
+import com.lavy.redbook.user.api.dto.resp.FindUserByPhoneRspDTO;
 import com.lavy.redbook.user.biz.constant.RedisKeyConstants;
 import com.lavy.redbook.user.biz.constant.RoleConstants;
 import com.lavy.redbook.user.biz.domain.dataobject.RoleDO;
@@ -202,5 +204,25 @@ public class UserServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implement
         redisTemplate.opsForValue().set(userRolesKey, JsonUtils.toJsonString(roles));
 
         return Response.success(userId);
+    }
+
+    /**
+     * 根据手机号查询用户信息
+     *
+     * @param findUserByPhoneReqDTO 查询条件
+     * @return 用户信息
+     */
+    @Override
+    public Response<FindUserByPhoneRspDTO> findByPhone(FindUserByPhoneReqDTO findUserByPhoneReqDTO) {
+        String phone = findUserByPhoneReqDTO.getPhone();
+        // 根据手机号查询用户信息
+        UserDO userDO = this.baseMapper.selectByPhone(phone);
+        Preconditions.checkArgument(userDO != null, ResponseCodeEnum.USER_NOT_FOUND.getErrorMessage());
+        // 构建返参
+        FindUserByPhoneRspDTO findUserByPhoneRspDTO = FindUserByPhoneRspDTO.builder()
+                .id(userDO.getId())
+                .password(userDO.getPassword())
+                .build();
+        return Response.success(findUserByPhoneRspDTO);
     }
 }

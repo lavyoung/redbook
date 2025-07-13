@@ -30,6 +30,7 @@ import com.lavy.redbook.framework.biz.context.holder.LoginUserContextHolder;
 import com.lavy.redbook.framework.common.exception.BizException;
 import com.lavy.redbook.framework.common.response.Response;
 import com.lavy.redbook.framework.common.util.JsonUtils;
+import com.lavy.redbook.user.api.dto.resp.FindUserByPhoneRspDTO;
 
 import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
@@ -106,17 +107,15 @@ public class UserServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implement
             }
             case PASSWORD -> {
                 String password = reqVO.getPassword();
-                UserDO userDO = this.baseMapper.selectByPhone(phone);
+                FindUserByPhoneRspDTO user = userRpcService.findUserByPhone(phone);
                 // 手机号是否注册
-                if (userDO == null) {
-                    return Response.fail(ResponseCodeEnum.USER_NOT_EXIST);
-                }
-                boolean matches = passwordEncoder.matches(password, userDO.getPassword());
+                Preconditions.checkArgument(user != null, ResponseCodeEnum.USER_NOT_EXIST.getErrorMessage());
+                boolean matches = passwordEncoder.matches(password, user.getPassword());
                 // 密码是否正确
                 if (!matches) {
                     return Response.fail(ResponseCodeEnum.USER_PASSWORD_ERROR);
                 }
-                userId = userDO.getId();
+                userId = user.getId();
             }
             default -> throw new BizException(ResponseCodeEnum.PARAM_NOT_VALID);
         }
