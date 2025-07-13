@@ -14,7 +14,8 @@ import com.lavy.redbook.framework.common.response.Response;
 import com.lavy.redbook.framework.common.util.JsonUtils;
 import com.lavy.redbook.gateway.enums.ResponseCodeEnum;
 
-import cn.dev33.satoken.exception.SaTokenException;
+import cn.dev33.satoken.exception.NotLoginException;
+import cn.dev33.satoken.exception.NotPermissionException;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
@@ -41,13 +42,20 @@ public class GlobalExceptionHandler implements ErrorWebExceptionHandler {
         ServerHttpResponse response = exchange.getResponse();
         log.error("==> 全局异常处理", ex);
         Response<?> result;
-        if (ex instanceof SaTokenException) {
-            // 认证异常
-            response.setStatusCode(HttpStatus.UNAUTHORIZED);
-            result = Response.fail(ResponseCodeEnum.UNAUTHORIZED);
-        } else {
-            // 系统异常
-            result = Response.fail(ResponseCodeEnum.SYSTEM_ERROR);
+        switch (ex) {
+            case NotLoginException e -> {
+                // 认证异常
+                response.setStatusCode(HttpStatus.UNAUTHORIZED);
+                result = Response.fail(ResponseCodeEnum.UNAUTHORIZED.getErrorCode(), e.getMessage());
+            }
+            case NotPermissionException e -> {
+                response.setStatusCode(HttpStatus.UNAUTHORIZED);
+                result = Response.fail(ResponseCodeEnum.UNAUTHORIZED.getErrorCode(),
+                        ResponseCodeEnum.UNAUTHORIZED.getErrorMessage());
+            }
+            default -> {
+                result = Response.fail(ResponseCodeEnum.SYSTEM_ERROR);
+            }
         }
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
         // 返回结果
