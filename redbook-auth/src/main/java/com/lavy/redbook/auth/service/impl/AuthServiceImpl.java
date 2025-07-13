@@ -1,35 +1,27 @@
 package com.lavy.redbook.auth.service.impl;
 
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.base.Preconditions;
 import com.lavy.redbook.auth.constant.RedisKeyConstants;
-import com.lavy.redbook.auth.domain.dataobject.RoleDO;
 import com.lavy.redbook.auth.domain.dataobject.UserDO;
-import com.lavy.redbook.auth.domain.dataobject.UserRoleRelDO;
-import com.lavy.redbook.auth.domain.mapper.RoleDOMapper;
 import com.lavy.redbook.auth.domain.mapper.UserDOMapper;
-import com.lavy.redbook.auth.domain.mapper.UserRoleRelDOMapper;
 import com.lavy.redbook.auth.enums.LoginTypeEnum;
 import com.lavy.redbook.auth.enums.ResponseCodeEnum;
 import com.lavy.redbook.auth.model.vo.user.UpdatePasswordReqVO;
 import com.lavy.redbook.auth.model.vo.user.UserLoginReqVO;
 import com.lavy.redbook.auth.rpc.UserRpcService;
-import com.lavy.redbook.auth.service.UserService;
+import com.lavy.redbook.auth.service.AuthService;
 import com.lavy.redbook.framework.biz.context.holder.LoginUserContextHolder;
 import com.lavy.redbook.framework.common.exception.BizException;
 import com.lavy.redbook.framework.common.response.Response;
-import com.lavy.redbook.framework.common.util.JsonUtils;
 import com.lavy.redbook.user.api.dto.resp.FindUserByPhoneRspDTO;
 
 import cn.dev33.satoken.stp.SaTokenInfo;
@@ -45,16 +37,10 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Service
 @Slf4j
-public class UserServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implements UserService {
+public class AuthServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implements AuthService {
 
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
-    @Resource
-    private UserRoleRelDOMapper userRoleRelDOMapper;
-    @Resource
-    private RoleDOMapper roleDOMapper;
-    @Resource
-    private TransactionTemplate transactionTemplate;
     @Resource
     private PasswordEncoder passwordEncoder;
     @Resource
@@ -99,7 +85,7 @@ public class UserServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implement
                     }
                 } else {
                     // 登录
-                    this.pushUserRoles(userDO.getId());
+                    userRpcService.pushUserRoles(userDO.getId());
                     userId = userDO.getId();
                 }
                 redisTemplate.delete(key);
@@ -134,33 +120,10 @@ public class UserServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implement
 
     @Override
     public Response<?> updatePassword(UpdatePasswordReqVO reqVO) {
-        Long userId = LoginUserContextHolder.getUserId();
-        String newPassword = reqVO.getNewPassword();
-        String encode = passwordEncoder.encode(newPassword);
-        this.baseMapper.updateById(
-                UserDO.builder().id(userId).password(encode).updateTime(LocalDateTime.now()).build());
+        userRpcService.updatePassword(reqVO.getNewPassword());
         return Response.success();
     }
 
-    /**
-     * 添加用户角色到Redis
-     *
-     * @param userId 用户 ID
-     */
-    private void pushUserRoles(Long userId) {
-        String userRoleKey = RedisKeyConstants.buildUserRoleKey(userId);
-        if (!redisTemplate.hasKey(userRoleKey)) {
-            List<UserRoleRelDO> userRoleRelDOS = this.userRoleRelDOMapper.selectListByUserId(userId);
-            if (userRoleRelDOS != null && !userRoleRelDOS.isEmpty()) {
-                List<Long> roleIds = userRoleRelDOS.stream().map(UserRoleRelDO::getRoleId).toList();
-                List<RoleDO> roleDOList = this.roleDOMapper.selectByIds(roleIds);
-                if (roleDOList != null && !roleDOList.isEmpty()) {
-                    List<String> roleKeys = roleDOList.stream().map(RoleDO::getRoleKey).toList();
-                    redisTemplate.opsForValue().set(userRoleKey, JsonUtils.toJsonString(roleKeys));
-                }
-            }
-        }
-    }
 
 
 }

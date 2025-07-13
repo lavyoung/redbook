@@ -12,7 +12,7 @@ import com.lavy.redbook.framework.common.response.Response;
  * @version: v1.0.0
  * @description: 用户服务
  */
-public interface UserService extends IService<UserDO> {
+public interface AuthService extends IService<UserDO> {
 
     /**
      * 登录

@@ -25,6 +25,7 @@ import com.lavy.redbook.framework.common.util.JsonUtils;
 import com.lavy.redbook.framework.common.util.ParamUtils;
 import com.lavy.redbook.user.api.dto.req.FindUserByPhoneReqDTO;
 import com.lavy.redbook.user.api.dto.req.RegisterUserReqDTO;
+import com.lavy.redbook.user.api.dto.req.UpdateUserPasswordReqDTO;
 import com.lavy.redbook.user.api.dto.resp.FindUserByPhoneRspDTO;
 import com.lavy.redbook.user.biz.constant.RedisKeyConstants;
 import com.lavy.redbook.user.biz.constant.RoleConstants;
@@ -224,5 +225,45 @@ public class UserServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implement
                 .password(userDO.getPassword())
                 .build();
         return Response.success(findUserByPhoneRspDTO);
+    }
+
+    @Override
+    public Response<?> updatePassword(UpdateUserPasswordReqDTO updateUserPasswordReqDTO) {
+        // 获取当前请求对应的用户 ID
+        Long userId = LoginUserContextHolder.getUserId();
+
+        UserDO userDO = UserDO.builder()
+                .id(userId)
+                .password(updateUserPasswordReqDTO.getEncodePassword())
+                .updateTime(LocalDateTime.now())
+                .build();
+        // 更新密码
+        this.baseMapper.updateByPrimaryKeySelective(userDO);
+
+        return Response.success();
+    }
+
+    @Override
+    public Response<?> pushUserRoles(Long userId) {
+        Long uid = LoginUserContextHolder.getUserId();
+        if (uid != null) {
+            userId = uid;
+        }
+        if (userId != null) {
+            String userRoleKey = RedisKeyConstants.buildUserRoleKey(userId);
+            if (!redisTemplate.hasKey(userRoleKey)) {
+                List<UserRoleRelDO> userRoleRelDOS = this.userRoleRelDOMapper.selectListByUserId(userId);
+                if (userRoleRelDOS != null && !userRoleRelDOS.isEmpty()) {
+                    List<Long> roleIds = userRoleRelDOS.stream().map(UserRoleRelDO::getRoleId).toList();
+                    List<RoleDO> roleDOList = this.roleDOMapper.selectByIds(roleIds);
+                    if (roleDOList != null && !roleDOList.isEmpty()) {
+                        List<String> roleKeys = roleDOList.stream().map(RoleDO::getRoleKey).toList();
+                        redisTemplate.opsForValue().set(userRoleKey, JsonUtils.toJsonString(roleKeys));
+                    }
+                }
+            }
+        }
+        return Response.success();
+
     }
 }

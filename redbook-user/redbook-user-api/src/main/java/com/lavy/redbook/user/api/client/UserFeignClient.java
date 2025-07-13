@@ -1,13 +1,16 @@
 package com.lavy.redbook.user.api.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.lavy.redbook.framework.common.response.Response;
 import com.lavy.redbook.user.api.constant.ApiConstants;
 import com.lavy.redbook.user.api.dto.req.FindUserByPhoneReqDTO;
 import com.lavy.redbook.user.api.dto.req.RegisterUserReqDTO;
+import com.lavy.redbook.user.api.dto.req.UpdateUserPasswordReqDTO;
 import com.lavy.redbook.user.api.dto.resp.FindUserByPhoneRspDTO;
 
 /**
@@ -39,4 +42,20 @@ public interface UserFeignClient {
     @PostMapping(value = PREFIX + "/findByPhone")
     Response<FindUserByPhoneRspDTO> findByPhone(@RequestBody FindUserByPhoneReqDTO findUserByPhoneReqDTO);
 
+    /**
+     * 密码更新
+     *
+     * @param updateUserPasswordReqDTO 更新参数
+     * @return 无
+     */
+    @PostMapping(value = PREFIX + "/password/update")
+    Response<?> updatePassword(@RequestBody UpdateUserPasswordReqDTO updateUserPasswordReqDTO);
+
+    /**
+     * 推送用户角色
+     *
+     * @return 无
+     */
+    @GetMapping("/pushUserRoles")
+    Response<?> pushUserRoles(@RequestParam("userId") Long userId);
 }

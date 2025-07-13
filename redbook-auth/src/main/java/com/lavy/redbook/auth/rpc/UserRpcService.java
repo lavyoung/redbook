@@ -6,6 +6,7 @@ import com.lavy.redbook.framework.common.response.Response;
 import com.lavy.redbook.user.api.client.UserFeignClient;
 import com.lavy.redbook.user.api.dto.req.FindUserByPhoneReqDTO;
 import com.lavy.redbook.user.api.dto.req.RegisterUserReqDTO;
+import com.lavy.redbook.user.api.dto.req.UpdateUserPasswordReqDTO;
 import com.lavy.redbook.user.api.dto.resp.FindUserByPhoneRspDTO;
 
 import jakarta.annotation.Resource;
@@ -60,4 +61,21 @@ public class UserRpcService {
         return response.getData();
     }
 
+    /**
+     * 修改密码
+     *
+     * @param encodePassword 密码
+     */
+    public void updatePassword(String encodePassword) {
+        UpdateUserPasswordReqDTO updateUserPasswordReqDTO = new UpdateUserPasswordReqDTO();
+        updateUserPasswordReqDTO.setEncodePassword(encodePassword);
+        userFeignClient.updatePassword(updateUserPasswordReqDTO);
+    }
+
+    /**
+     * 推送用户角色
+     */
+    public void pushUserRoles(Long userId) {
+        userFeignClient.pushUserRoles(userId);
+    }
 }

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.lavy.redbook.framework.common.response.Response;
 import com.lavy.redbook.user.api.dto.req.FindUserByPhoneReqDTO;
 import com.lavy.redbook.user.api.dto.req.RegisterUserReqDTO;
+import com.lavy.redbook.user.api.dto.req.UpdateUserPasswordReqDTO;
 import com.lavy.redbook.user.api.dto.resp.FindUserByPhoneRspDTO;
 import com.lavy.redbook.user.biz.domain.dataobject.UserDO;
 import com.lavy.redbook.user.biz.model.vo.UpdateUserInfoReqVO;
@@ -39,5 +40,21 @@ public interface UserService extends IService<UserDO> {
      * @return 用户信息
      */
     Response<FindUserByPhoneRspDTO> findByPhone(FindUserByPhoneReqDTO findUserByPhoneReqDTO);
+
+    /**
+     * 修改密码
+     *
+     * @param updateUserPasswordReqDTO 修改密码请求参数
+     * @return 修改结果
+     */
+    Response<?> updatePassword(UpdateUserPasswordReqDTO updateUserPasswordReqDTO);
+
+    /**
+     * 推送用户角色
+     *
+     * @param userId 用户ID
+     * @return 推送结果
+     */
+    Response<?> pushUserRoles(Long userId);
 
 }
