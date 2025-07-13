@@ -1,4 +1,4 @@
-package com.lavy.redbook.user.biz;
+package com.lavy.redbook.user.biz.rpc;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;

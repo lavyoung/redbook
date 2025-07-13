@@ -13,12 +13,12 @@ import com.lavy.redbook.framework.biz.context.holder.LoginUserContextHolder;
 import com.lavy.redbook.framework.common.exception.BizException;
 import com.lavy.redbook.framework.common.response.Response;
 import com.lavy.redbook.framework.common.util.ParamUtils;
-import com.lavy.redbook.user.biz.OssRpcService;
 import com.lavy.redbook.user.biz.domain.dataobject.UserDO;
 import com.lavy.redbook.user.biz.domain.mapper.UserDOMapper;
 import com.lavy.redbook.user.biz.enums.ResponseCodeEnum;
 import com.lavy.redbook.user.biz.enums.SexEnum;
 import com.lavy.redbook.user.biz.model.vo.UpdateUserInfoReqVO;
+import com.lavy.redbook.user.biz.rpc.OssRpcService;
 import com.lavy.redbook.user.biz.service.UserService;
 
 import jakarta.annotation.Resource;
@@ -46,7 +46,11 @@ public class UserServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implement
     @Override
     public Response<?> updateUserInfo(UpdateUserInfoReqVO updateUserInfoReqVO) {
         UserDO userDO = new UserDO();
-        userDO.setId(LoginUserContextHolder.getUserId());
+        Long userId = LoginUserContextHolder.getUserId();
+        if (userId == null) {
+            return Response.fail(ResponseCodeEnum.SYSTEM_ERROR);
+        }
+        userDO.setId(userId);
         boolean needUpdate = false;
 
         // 头像
