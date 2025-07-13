@@ -1,0 +1,11 @@
+logging:
+  level:
+    com.lavy.redbook.kv: debug
+
+spring:
+  cassandra:
+    keyspace-name: redbook
+    contact-points:
+      - 192.168.23.200
+    port: 9042
+    local-datacenter: dc
