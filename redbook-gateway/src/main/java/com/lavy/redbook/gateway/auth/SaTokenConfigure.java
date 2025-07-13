@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Configuration;
 import cn.dev33.satoken.reactor.filter.SaReactorFilter;
 import cn.dev33.satoken.router.SaRouter;
 import cn.dev33.satoken.stp.StpUtil;
-import cn.dev33.satoken.util.SaResult;
 
 /**
  * @author <a href="lavyoung1325@outlook.com">lavy</a>
@@ -32,7 +31,6 @@ public class SaTokenConfigure {
 
                     // 用户注销登录验证权限
                     SaRouter.match("/auth/user/logout", () -> StpUtil.checkRole("common_user"));
-                })
-                .setError(e -> SaResult.error(e.getMessage()));
+                });
     }
 }
