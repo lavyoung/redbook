@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
  * @description: todo
  */
 @RestController
-@RequestMapping("/user")
+@RequestMapping()
 @RequiredArgsConstructor
 @Slf4j
 public class UserController {

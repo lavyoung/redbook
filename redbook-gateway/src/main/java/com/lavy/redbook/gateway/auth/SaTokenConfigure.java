@@ -28,12 +28,12 @@ public class SaTokenConfigure {
                 .addInclude("/**")
                 .setAuth(auth -> {
                     SaRouter.match("/**")
-                            .notMatch("/auth/user/doLogin") // 登录接口放行
+                            .notMatch("/auth/doLogin") // 登录接口放行
                             .notMatch("/auth/verificationCode/send") // 验证码接口放行
                             .check(r -> StpUtil.checkLogin()); // 验证是否登录
 
                     // 用户注销登录验证权限
-                    SaRouter.match("/auth/user/logout", () -> StpUtil.checkRole("common_user"));
+                    SaRouter.match("/auth/logout", () -> StpUtil.checkRole("common_user"));
                 }).setError(e -> {
                     // return SaResult.error(e.getMessage());
                     // 手动抛出异常，抛给全局异常处理器

@@ -16,7 +16,7 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: redbook-user
+        - id: redbook-auth
           uri: lb://redbook-auth # 定义了请求将被路由到的目标服务地址。这里使用 lb://xiaohashu-auth，其中 lb 代表的是负载均衡（Load Balancer），xiaohashu-auth 是认证服务的名称。Spring Cloud Gateway 会使用注册中心（如 Nacos ）来解析并负载均衡到具体的服务实例L
           predicates:
             - Path=/auth/** # 匹配路径
@@ -26,5 +26,11 @@ spring:
           uri: lb://redbook-oss
           predicates:
             - Path=/oss/**
+          filters:
+            - StripPrefix=1
+        - id: redbook-user
+          uri: lb://redbook-user
+          predicates:
+            - Path=/user/**
           filters:
             - StripPrefix=1
