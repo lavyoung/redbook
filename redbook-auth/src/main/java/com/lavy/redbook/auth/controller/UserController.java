@@ -4,12 +4,14 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lavy.redbook.auth.model.vo.user.UserLoginReqVO;
 import com.lavy.redbook.auth.service.UserService;
 import com.lavy.redbook.framework.biz.operationlog.aspect.ApiOperationLog;
+import com.lavy.redbook.framework.common.constant.ApiHeaderConstant;
 import com.lavy.redbook.framework.common.response.Response;
 
 import lombok.RequiredArgsConstructor;
@@ -38,8 +40,9 @@ public class UserController {
 
     @GetMapping("/logout")
     @ApiOperationLog(description = "用户登出")
-    public Response<?> logout() {
+    public Response<?> logout(@RequestHeader(value = ApiHeaderConstant.HEADER_USER_ID) String userId) {
         //        StpUtil.logout();
+        log.info("==> 用户ID: {}", userId);
         return Response.success();
     }
 }
