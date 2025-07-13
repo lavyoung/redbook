@@ -2,7 +2,6 @@ package com.lavy.redbook.jackson;
 
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lavy.redbook.jackson.config.JacksonConfig;
@@ -17,7 +16,6 @@ public class JacksonAutoConfiguration {
 
 
     @Bean
-    @Primary
     public ObjectMapper objectMapper() {
         return new JacksonConfig().jacksonMapper();
     }

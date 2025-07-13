@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Year;
 import java.time.YearMonth;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.TimeZone;
 
@@ -45,7 +46,7 @@ public class JacksonConfig {
         objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
 
         // 设置时区
-        objectMapper.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
+        objectMapper.setTimeZone(TimeZone.getTimeZone(ZoneId.systemDefault()));
         JavaTimeModule javaTimeModule = new JavaTimeModule();
         objectMapper.registerModule(javaTimeModule);
 

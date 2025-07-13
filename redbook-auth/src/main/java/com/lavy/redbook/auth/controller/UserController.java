@@ -12,7 +12,6 @@ import com.lavy.redbook.auth.service.UserService;
 import com.lavy.redbook.framework.biz.operationlog.aspect.ApiOperationLog;
 import com.lavy.redbook.framework.common.response.Response;
 
-import cn.dev33.satoken.stp.StpUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,7 +39,7 @@ public class UserController {
     @GetMapping("/logout")
     @ApiOperationLog(description = "用户登出")
     public Response<?> logout() {
-        StpUtil.logout();
+        //        StpUtil.logout();
         return Response.success();
     }
 }

@@ -26,12 +26,12 @@ public class SaTokenConfigure {
                 .addInclude("/**")
                 .setAuth(auth -> {
                     SaRouter.match("/**")
-                            .notMatch("/auth/user/login") // 登录接口放行
-                            .notMatch("/auth/verification/code/send") // 验证码接口放行
+                            .notMatch("/auth/user/doLogin") // 登录接口放行
+                            .notMatch("/auth/verificationCode/send") // 验证码接口放行
                             .check(r -> StpUtil.checkLogin()); // 验证是否登录
 
-                    // 验证角色
-                    // SaRouter.match("/admin/**", () -> StpUtil.checkRole("admin"));
+                    // 用户注销登录验证权限
+                    SaRouter.match("/auth/user/logout", () -> StpUtil.checkPermission("user"));
                 })
                 .setError(e -> SaResult.error(e.getMessage()));
     }

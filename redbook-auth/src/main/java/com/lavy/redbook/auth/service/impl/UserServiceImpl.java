@@ -1,6 +1,7 @@
 package com.lavy.redbook.auth.service.impl;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -11,11 +12,12 @@ import org.springframework.util.Assert;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.lavy.redbook.auth.constant.RedisKeyConstants;
 import com.lavy.redbook.auth.constant.RoleConstants;
+import com.lavy.redbook.auth.domain.dataobject.RoleDO;
 import com.lavy.redbook.auth.domain.dataobject.UserDO;
 import com.lavy.redbook.auth.domain.dataobject.UserRoleRelDO;
+import com.lavy.redbook.auth.domain.mapper.RoleDOMapper;
 import com.lavy.redbook.auth.domain.mapper.UserDOMapper;
 import com.lavy.redbook.auth.domain.mapper.UserRoleRelDOMapper;
 import com.lavy.redbook.auth.enums.LoginTypeEnum;
@@ -48,6 +50,8 @@ public class UserServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implement
     @Resource
     private UserRoleRelDOMapper userRoleRelDOMapper;
     @Resource
+    private RoleDOMapper roleDOMapper;
+    @Resource
     private TransactionTemplate transactionTemplate;
     /**
      * 用户登录/注册
@@ -65,7 +69,7 @@ public class UserServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implement
         switch (loginTypeEnum) {
             case PHONE -> {
                 String voCode = reqVO.getCode();
-                Preconditions.checkArgument(StringUtils.isBlank(voCode),
+                Preconditions.checkArgument(!StringUtils.isBlank(voCode),
                         ResponseCodeEnum.PARAM_NOT_VALID.getErrorMessage());
                 String key = RedisKeyConstants.buildVerificationCodeKey(phone);
                 Object object = redisTemplate.opsForValue().get(key);
@@ -84,6 +88,7 @@ public class UserServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implement
                     userId = this.register(phone);
                 } else {
                     // 登录
+                    this.pushUserRoles(userDO.getId());
                     userId = userDO.getId();
                 }
                 redisTemplate.delete(key);
@@ -101,6 +106,26 @@ public class UserServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implement
         SaTokenInfo tokenInfo = StpUtil.getTokenInfo();
         // 返回 token
         return Response.success(tokenInfo.tokenValue);
+    }
+
+    /**
+     * 添加用户角色到Redis
+     *
+     * @param userId 用户 ID
+     */
+    private void pushUserRoles(Long userId) {
+        String userRoleKey = RedisKeyConstants.buildUserRoleKey(userId);
+        if (!redisTemplate.hasKey(userRoleKey)) {
+            List<UserRoleRelDO> userRoleRelDOS = this.userRoleRelDOMapper.selectListByUserId(userId);
+            if (userRoleRelDOS != null && !userRoleRelDOS.isEmpty()) {
+                List<Long> roleIds = userRoleRelDOS.stream().map(UserRoleRelDO::getRoleId).toList();
+                List<RoleDO> roleDOList = this.roleDOMapper.selectByIds(roleIds);
+                if (roleDOList != null && !roleDOList.isEmpty()) {
+                    List<String> roleKeys = roleDOList.stream().map(RoleDO::getRoleKey).toList();
+                    redisTemplate.opsForValue().set(userRoleKey, JsonUtils.toJsonString(roleKeys));
+                }
+            }
+        }
     }
 
     /**
@@ -133,11 +158,12 @@ public class UserServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implement
                         .isDeleted(DeletedEnum.NO.getValue())
                         .build();
                 this.userRoleRelDOMapper.insert(roleRelDO);
+                RoleDO roleDO = roleDOMapper.selectByPrimaryKey(RoleConstants.COMMON_USER_ROLE_ID);
 
                 // 添加用户角色到Redis
-                List<Long> roles = Lists.newArrayList();
-                roles.add(RoleConstants.COMMON_USER_ROLE_ID);
-                String userRoleKey = RedisKeyConstants.buildUserRoleKey(phone);
+                List<String> roles = new ArrayList<>(1);
+                roles.add(roleDO.getRoleKey());
+                String userRoleKey = RedisKeyConstants.buildUserRoleKey(userDO.getId());
                 redisTemplate.opsForValue().set(userRoleKey, JsonUtils.toJsonString(roles));
                 return userDO.getId();
             } catch (Exception e) {

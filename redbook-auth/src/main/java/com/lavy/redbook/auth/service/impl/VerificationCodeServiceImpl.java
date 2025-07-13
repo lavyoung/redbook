@@ -58,7 +58,7 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
         // 生成验证码
         String numbers = RandomUtil.randomNumbers(6);
         log.info("验证码：{}", numbers);
-        threadPoolExecutor.execute(() -> aliyunSmsHelper.sendSms(phone, numbers));
+        //        threadPoolExecutor.execute(() -> aliyunSmsHelper.sendSms(phone, numbers));
         // 缓存验证码
         redisTemplate.opsForValue().set(key, numbers, 15, TimeUnit.MINUTES);
         return Response.success();

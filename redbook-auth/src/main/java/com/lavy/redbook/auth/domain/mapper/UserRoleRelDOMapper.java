@@ -1,5 +1,9 @@
 package com.lavy.redbook.auth.domain.mapper;
 
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.lavy.redbook.auth.domain.dataobject.UserRoleRelDO;
 
@@ -59,4 +63,12 @@ public interface UserRoleRelDOMapper extends BaseMapper<UserRoleRelDO> {
      * @return 更新数量
      */
     int updateByPrimaryKey(UserRoleRelDO record);
+
+    /**
+     * 根据用户id查询
+     *
+     * @param userId 用户id
+     * @return 数据列表
+     */
+    List<UserRoleRelDO> selectListByUserId(@Param("userId") Long userId);
 }
