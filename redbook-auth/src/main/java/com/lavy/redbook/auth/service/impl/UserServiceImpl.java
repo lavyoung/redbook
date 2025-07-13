@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
@@ -22,6 +23,7 @@ import com.lavy.redbook.auth.domain.mapper.UserDOMapper;
 import com.lavy.redbook.auth.domain.mapper.UserRoleRelDOMapper;
 import com.lavy.redbook.auth.enums.LoginTypeEnum;
 import com.lavy.redbook.auth.enums.ResponseCodeEnum;
+import com.lavy.redbook.auth.model.vo.user.UpdatePasswordReqVO;
 import com.lavy.redbook.auth.model.vo.user.UserLoginReqVO;
 import com.lavy.redbook.auth.service.UserService;
 import com.lavy.redbook.framework.biz.context.holder.LoginUserContextHolder;
@@ -54,6 +56,8 @@ public class UserServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implement
     private RoleDOMapper roleDOMapper;
     @Resource
     private TransactionTemplate transactionTemplate;
+    @Resource
+    private PasswordEncoder passwordEncoder;
     /**
      * 用户登录/注册
      *
@@ -112,6 +116,16 @@ public class UserServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implement
     @Override
     public Response<?> logout() {
         StpUtil.logout(LoginUserContextHolder.getUserId());
+        return Response.success();
+    }
+
+    @Override
+    public Response<?> updatePassword(UpdatePasswordReqVO reqVO) {
+        Long userId = LoginUserContextHolder.getUserId();
+        String newPassword = reqVO.getNewPassword();
+        String encode = passwordEncoder.encode(newPassword);
+        this.baseMapper.updateById(
+                UserDO.builder().id(userId).password(encode).updateTime(LocalDateTime.now()).build());
         return Response.success();
     }
 

@@ -3,10 +3,12 @@ package com.lavy.redbook.auth.controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.lavy.redbook.auth.model.vo.user.UpdatePasswordReqVO;
 import com.lavy.redbook.auth.model.vo.user.UserLoginReqVO;
 import com.lavy.redbook.auth.service.UserService;
 import com.lavy.redbook.framework.biz.operationlog.aspect.ApiOperationLog;
@@ -40,5 +42,11 @@ public class UserController {
     @ApiOperationLog(description = "用户登出")
     public Response<?> logout() {
         return userService.logout();
+    }
+
+    @PutMapping("/pwd/update")
+    @ApiOperationLog(description = "修改密码")
+    public Response<?> updatePassword(@Validated @RequestBody UpdatePasswordReqVO reqVO) {
+        return userService.updatePassword(reqVO);
     }
 }

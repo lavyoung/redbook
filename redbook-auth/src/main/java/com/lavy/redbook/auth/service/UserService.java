@@ -2,6 +2,7 @@ package com.lavy.redbook.auth.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lavy.redbook.auth.domain.dataobject.UserDO;
+import com.lavy.redbook.auth.model.vo.user.UpdatePasswordReqVO;
 import com.lavy.redbook.auth.model.vo.user.UserLoginReqVO;
 import com.lavy.redbook.framework.common.response.Response;
 
@@ -27,4 +28,12 @@ public interface UserService extends IService<UserDO> {
      * @return 响应结果
      */
     Response<?> logout();
+
+    /**
+     * 修改密码
+     *
+     * @param reqVO 请求参数
+     * @return 响应结果
+     */
+    Response<?> updatePassword(UpdatePasswordReqVO reqVO);
 }
