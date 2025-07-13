@@ -13,6 +13,6 @@ public interface ApiConstants {
     /**
      * 服务名
      */
-    String SERVICE_NAME = "xiaohashu-user";
+    String SERVICE_NAME = "redbook-user";
 
 }

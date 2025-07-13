@@ -3,16 +3,16 @@ package com.lavy.redbook.auth.service.impl;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.base.Preconditions;
 import com.lavy.redbook.auth.constant.RedisKeyConstants;
-import com.lavy.redbook.auth.domain.dataobject.UserDO;
-import com.lavy.redbook.auth.domain.mapper.UserDOMapper;
 import com.lavy.redbook.auth.enums.LoginTypeEnum;
 import com.lavy.redbook.auth.enums.ResponseCodeEnum;
 import com.lavy.redbook.auth.model.vo.user.UpdatePasswordReqVO;
@@ -37,7 +37,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Service
 @Slf4j
-public class AuthServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implements AuthService {
+public class AuthServiceImpl implements AuthService {
 
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
@@ -45,6 +45,9 @@ public class AuthServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implement
     private PasswordEncoder passwordEncoder;
     @Resource
     private UserRpcService userRpcService;
+    @Autowired
+    @Qualifier("authThreadPoolTaskExecutor")
+    private ThreadPoolTaskExecutor threadPoolExecutor;
 
     /**
      * 用户登录/注册
@@ -73,7 +76,7 @@ public class AuthServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implement
                 if (!code.equals(reqVO.getCode())) {
                     throw new BizException(ResponseCodeEnum.VERIFICATION_CODE_ERROR);
                 }
-                UserDO userDO = this.baseMapper.selectByPhone(phone);
+                FindUserByPhoneRspDTO userDO = userRpcService.findUserByPhone(phone);
 
                 log.info("用户信息： 手机号：{}， 用户：{}", phone, userDO);
                 if (userDO == null) {
@@ -85,7 +88,7 @@ public class AuthServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implement
                     }
                 } else {
                     // 登录
-                    userRpcService.pushUserRoles(userDO.getId());
+                    threadPoolExecutor.execute(() -> userRpcService.pushUserRoles(userDO.getId()));
                     userId = userDO.getId();
                 }
                 redisTemplate.delete(key);
