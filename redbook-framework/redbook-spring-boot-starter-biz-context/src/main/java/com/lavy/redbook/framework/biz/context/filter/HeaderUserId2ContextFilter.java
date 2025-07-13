@@ -3,7 +3,6 @@ package com.lavy.redbook.framework.biz.context.filter;
 import java.io.IOException;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.lavy.redbook.framework.biz.context.holder.LoginUserContextHolder;
@@ -21,7 +20,6 @@ import lombok.extern.slf4j.Slf4j;
  * @version: v1.0.0
  * @description: 添加用户ID到上下文
  */
-@Component
 @Slf4j
 public class HeaderUserId2ContextFilter extends OncePerRequestFilter {
 

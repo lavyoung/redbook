@@ -60,5 +60,5 @@ spring:
 logging:
   level:
     com.lavy.redbook.auth.domain.mapper: debug
-    com.lavy.redbook.auth.filter: debug
+    com.lavy.redbook.framework: debug
     org.springframework.boot.context.properties: DEBUG
