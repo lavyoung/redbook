@@ -17,6 +17,7 @@
         <module>redbook-framework</module>
         <module>redbook-gateway</module>
         <module>redbook-oss</module>
+        <module>redbook-user</module>
     </modules>
 
     <packaging>pom</packaging>
@@ -100,6 +101,16 @@
             <dependency>
                 <groupId>com.lavy.redbook</groupId>
                 <artifactId>redbook-spring-boot-starter-biz-context</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.lavy.redbook</groupId>
+                <artifactId>redbook-oss-api</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.lavy.redbook</groupId>
+                <artifactId>redbook-user-api</artifactId>
                 <version>${revision}</version>
             </dependency>
             <!-- 外部依赖 -->

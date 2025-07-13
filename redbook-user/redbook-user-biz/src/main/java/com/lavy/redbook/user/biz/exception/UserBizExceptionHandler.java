@@ -1,4 +1,4 @@
-package com.lavy.redbook.auth.exception;
+package com.lavy.redbook.user.biz.exception;
 
 import java.util.Optional;
 
@@ -8,22 +8,22 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.lavy.redbook.auth.enums.ResponseCodeEnum;
 import com.lavy.redbook.framework.common.exception.BizException;
 import com.lavy.redbook.framework.common.response.Response;
+import com.lavy.redbook.user.biz.enums.ResponseCodeEnum;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author <a href="lavyoung1325@outlook.com">lavy</a>
- * @date: 2025/7/10
+ * @date: 2025/7/13
  * @version: v1.0.0
  * @description: 响应码枚举
  */
 @ControllerAdvice
 @Slf4j
-public class AuthExceptionHandler {
+public class UserBizExceptionHandler {
 
     /**
      * 捕获业务异常

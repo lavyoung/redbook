@@ -1,0 +1,47 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver # 指定数据库驱动类
+    # 数据库连接信息
+    url: jdbc:mysql://192.168.23.200:3306/redbook?useUnicode=true&characterEncoding=utf-8&autoReconnect=true&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root # 数据库用户名
+    password: alZebVUQoo8Hokt8BCCe8Vmqhlx02C+rdvRsxUWDQRnVzV3LtaiSUpl71IBF0lrhpAtIG1jYAhL6m7Fjopbxhw== # 数据库密码123456
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      initial-size: 5 # 初始化连接池大小
+      min-idle: 5 # 最小连接池大小
+      max-active: 20 # 最大连接池大小
+      max-wait: 60000 # 获取连接时最大等待时间
+      test-while-idle: true
+      time-between-eviction-runs-millis: 60000 # 连接空闲检测时间
+      min-evictable-idle-time-millis: 300000 # 最小存活时间
+      max-evictable-idle-time-millis: 900000  # 最大存活时间
+      validation-query: SELECT 1 FROM DUAL
+      test-on-borrow: false
+      test-on-return: false
+      pool-prepared-statements: false
+      connect-properties:
+        config.decrypt: true
+        config.decrypt.key: MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAPELQVFPQMr07n42T811FMBPmTojp7w0ildibKs6V/1G/hXt+5RkwVCDAZvseKVEEBRhUilbMK49MYzJVrOm/KkCAwEAAQ==
+      web-stat-filter:
+        enabled: true
+      stat-view-servlet:
+        enabled: true
+        url-pattern: /druid/* # 监控页面的访问路径
+        login-username: admin # 监控页面的登录用户名
+        login-password: admin
+      filter: # 用于配置 Druid 的过滤器，包括统计过滤器和防火墙过滤器
+        config:
+          enabled: true #表示开启该配置项。这个配置项通常用于配置 Druid 连接池的一些额外功能，比如密码解密等
+        stat:
+          enabled: true # 配置 Druid 的统计过滤器。enabled 表示是否开启统计功能
+          log-slow-sql: true
+          slow-sql-millis: 2000 # 大于2s
+          merge-sql: true
+        wall: # 配置 Druid 的防火墙过滤器。防火墙用于防止 SQL 注入攻击
+          config:
+            multi-statement-allow: true
+
+
+logging:
+  level:
+    com.lavy.redbook.user: debug

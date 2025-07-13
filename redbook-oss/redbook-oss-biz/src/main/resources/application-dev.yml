@@ -2,7 +2,7 @@ logging:
   level:
     com.lavy.redbook.oss.biz: debug
 
-
+# 存储配置
 storage:
   type: ALIYUN # 对象存储类型
   minio:
