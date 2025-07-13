@@ -20,4 +20,12 @@ public interface UserService extends IService<UserDO> {
      * @return 响应结果
      */
     Response<?> doLogin(UserLoginReqVO reqVO);
+
+    /**
+     * 登出
+     *
+     * @param userId 用户ID
+     * @return 响应结果
+     */
+    Response<?> logout(String userId);
 }

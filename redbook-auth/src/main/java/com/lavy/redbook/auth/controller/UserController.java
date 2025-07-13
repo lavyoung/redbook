@@ -41,8 +41,6 @@ public class UserController {
     @GetMapping("/logout")
     @ApiOperationLog(description = "用户登出")
     public Response<?> logout(@RequestHeader(value = ApiHeaderConstant.HEADER_USER_ID) String userId) {
-        //        StpUtil.logout();
-        log.info("==> 用户ID: {}", userId);
-        return Response.success();
+        return userService.logout(userId);
     }
 }

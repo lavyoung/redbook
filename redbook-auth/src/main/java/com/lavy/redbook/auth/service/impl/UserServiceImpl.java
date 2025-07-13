@@ -108,6 +108,12 @@ public class UserServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implement
         return Response.success(tokenInfo.tokenValue);
     }
 
+    @Override
+    public Response<?> logout(String userId) {
+        StpUtil.logout(userId);
+        return Response.success();
+    }
+
     /**
      * 添加用户角色到Redis
      *
