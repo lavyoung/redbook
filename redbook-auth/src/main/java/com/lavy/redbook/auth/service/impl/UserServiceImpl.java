@@ -22,6 +22,7 @@ import com.lavy.redbook.auth.domain.mapper.UserDOMapper;
 import com.lavy.redbook.auth.domain.mapper.UserRoleRelDOMapper;
 import com.lavy.redbook.auth.enums.LoginTypeEnum;
 import com.lavy.redbook.auth.enums.ResponseCodeEnum;
+import com.lavy.redbook.auth.filter.LoginUserContextHolder;
 import com.lavy.redbook.auth.model.vo.user.UserLoginReqVO;
 import com.lavy.redbook.auth.service.UserService;
 import com.lavy.redbook.framework.common.eumns.DeletedEnum;
@@ -109,8 +110,8 @@ public class UserServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implement
     }
 
     @Override
-    public Response<?> logout(String userId) {
-        StpUtil.logout(userId);
+    public Response<?> logout() {
+        StpUtil.logout(LoginUserContextHolder.getUserId());
         return Response.success();
     }
 

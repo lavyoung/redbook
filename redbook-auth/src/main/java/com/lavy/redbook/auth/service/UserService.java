@@ -24,8 +24,7 @@ public interface UserService extends IService<UserDO> {
     /**
      * 登出
      *
-     * @param userId 用户ID
      * @return 响应结果
      */
-    Response<?> logout(String userId);
+    Response<?> logout();
 }
