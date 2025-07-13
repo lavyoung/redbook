@@ -1,13 +1,20 @@
 package com.lavy.redbook.kv.biz.service.impl;
 
+import java.util.Optional;
 import java.util.UUID;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import com.lavy.redbook.framework.common.exception.BizException;
 import com.lavy.redbook.framework.common.response.Response;
 import com.lavy.redbook.kv.api.dto.req.AddNoteContentReqDTO;
+import com.lavy.redbook.kv.api.dto.req.DeleteNoteContentReqDTO;
+import com.lavy.redbook.kv.api.dto.req.FindNoteContentReqDTO;
+import com.lavy.redbook.kv.api.dto.resp.FindNoteContentRspDTO;
 import com.lavy.redbook.kv.biz.domian.dataobject.NoteContentDO;
 import com.lavy.redbook.kv.biz.domian.repository.NoteContentRepository;
+import com.lavy.redbook.kv.biz.enums.ResponseCodeEnum;
 import com.lavy.redbook.kv.biz.service.NoteContentService;
 
 import jakarta.annotation.Resource;
@@ -42,6 +49,30 @@ public class NoteContentServiceImpl implements NoteContentService {
         // 插入数据
         noteContentRepository.save(nodeContent);
 
+        return Response.success();
+    }
+
+    @Override
+    public Response<FindNoteContentRspDTO> findNoteContent(FindNoteContentReqDTO findNoteContentReqDTO) {
+        String noteId = findNoteContentReqDTO.getNoteId();
+        Optional<NoteContentDO> optional = noteContentRepository.findById(UUID.fromString(noteId));
+        if (optional.isEmpty()) {
+            throw new BizException(ResponseCodeEnum.NOTE_CONTENT_NOT_FOUND);
+        }
+        NoteContentDO noteContentDO = optional.get();
+        FindNoteContentRspDTO findNoteContentRspDTO = FindNoteContentRspDTO.builder()
+                .noteId(noteContentDO.getId())
+                .content(noteContentDO.getContent())
+                .build();
+        return Response.success(findNoteContentRspDTO);
+    }
+
+    @Override
+    public Response<?> deleteNoteContent(DeleteNoteContentReqDTO deleteNoteContentReqDTO) {
+        if (StringUtils.isBlank(deleteNoteContentReqDTO.getNoteId())) {
+            return Response.fail(ResponseCodeEnum.PARAM_NOT_VALID);
+        }
+        noteContentRepository.deleteById(UUID.fromString(deleteNoteContentReqDTO.getNoteId()));
         return Response.success();
     }
 }
