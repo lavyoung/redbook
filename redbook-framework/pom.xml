@@ -12,13 +12,12 @@
 
     <!-- 多模块项目需要配置打包方式为 pom -->
     <packaging>pom</packaging>
-
     <description>平台基础设施层：封装一些常用功能，供各个业务线拿来即用</description>
 
     <modules>
-
         <module>redbook-common</module>
         <module>redbook-spring-boot-starter-biz-operationlog</module>
         <module>redbook-spring-boot-starter-jackson</module>
+        <module>redbook-spring-boot-starter-biz-context</module>
     </modules>
 </project>

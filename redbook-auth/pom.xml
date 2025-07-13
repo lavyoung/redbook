@@ -39,6 +39,10 @@
             <artifactId>redbook-spring-boot-starter-jackson</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.lavy.redbook</groupId>
+            <artifactId>redbook-spring-boot-starter-biz-context</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
         </dependency>

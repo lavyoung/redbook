@@ -1,9 +1,10 @@
-package com.lavy.redbook.auth.filter;
+package com.lavy.redbook.framework.biz.context.holder;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import com.alibaba.ttl.TransmittableThreadLocal;
 import com.lavy.redbook.framework.common.constant.ApiHeaderConstant;
 
 /**
@@ -15,7 +16,7 @@ import com.lavy.redbook.framework.common.constant.ApiHeaderConstant;
 public class LoginUserContextHolder {
 
     private static final ThreadLocal<Map<String, Object>> LOGIN_USER_CONTEXT_THREAD_LOCAL =
-            ThreadLocal.withInitial(HashMap::new);
+            TransmittableThreadLocal.withInitial(HashMap::new);
 
     /**
      * 设置用户 ID

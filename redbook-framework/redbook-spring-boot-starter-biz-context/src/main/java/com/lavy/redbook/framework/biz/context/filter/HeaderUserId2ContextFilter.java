@@ -1,4 +1,4 @@
-package com.lavy.redbook.auth.filter;
+package com.lavy.redbook.framework.biz.context.filter;
 
 import java.io.IOException;
 
@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.lavy.redbook.framework.biz.context.holder.LoginUserContextHolder;
 import com.lavy.redbook.framework.common.constant.ApiHeaderConstant;
 
 import jakarta.servlet.FilterChain;
