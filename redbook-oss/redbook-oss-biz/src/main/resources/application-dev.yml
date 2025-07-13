@@ -1,0 +1,11 @@
+logging:
+  level:
+    com.lavy.redbook.oss.biz: debug
+
+
+storage:
+  type: ALIYUN # 对象存储类型
+  minio:
+    endpoint: http://192.168.23.200:9000
+    accessKey: admin
+    secretKey: 12345678

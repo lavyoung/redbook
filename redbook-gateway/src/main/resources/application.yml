@@ -22,3 +22,9 @@ spring:
             - Path=/auth/** # 匹配路径
           filters:
             - StripPrefix=1 # 移除前缀 auth
+        - id: redbook-oss
+          uri: lb://redbook-oss
+          predicates:
+            - Path=/oss/**
+          filters:
+            - StripPrefix=1
