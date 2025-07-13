@@ -26,6 +26,11 @@
             <groupId>com.lavy.redbook</groupId>
             <artifactId>redbook-spring-boot-starter-jackson</artifactId>
         </dependency>
+        <!-- 上下文组件 -->
+        <dependency>
+            <groupId>com.lavy.redbook</groupId>
+            <artifactId>redbook-spring-boot-starter-biz-context</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>

@@ -1,1 +1,2 @@
 com.lavy.redbook.framework.biz.context.config.ContextAutoConfiguration
+com.lavy.redbook.framework.biz.context.config.FeignContextAutoConfiguration
