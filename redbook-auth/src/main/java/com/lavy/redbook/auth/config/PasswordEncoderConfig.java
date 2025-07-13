@@ -9,7 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * @author <a href="lavyoung1325@outlook.com">lavy</a>
  * @date: 2025/7/13
  * @version: v1.0.0
- * @description: todo
+ * @description: 密码加密配置
  */
 @Configuration
 public class PasswordEncoderConfig {

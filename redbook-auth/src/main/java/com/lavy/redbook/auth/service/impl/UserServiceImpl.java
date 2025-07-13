@@ -100,11 +100,20 @@ public class UserServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implement
                 break;
             }
             case PASSWORD -> {
-                // todo
+                String password = reqVO.getPassword();
+                UserDO userDO = this.baseMapper.selectByPhone(phone);
+                // 手机号是否注册
+                if (userDO == null) {
+                    return Response.fail(ResponseCodeEnum.USER_NOT_EXIST);
+                }
+                boolean matches = passwordEncoder.matches(password, userDO.getPassword());
+                // 密码是否正确
+                if (!matches) {
+                    return Response.fail(ResponseCodeEnum.USER_PASSWORD_ERROR);
+                }
+                userId = userDO.getId();
             }
-            default -> {
-                throw new BizException(ResponseCodeEnum.PARAM_NOT_VALID);
-            }
+            default -> throw new BizException(ResponseCodeEnum.PARAM_NOT_VALID);
         }
         // SaToken 登录
         StpUtil.login(userId);
