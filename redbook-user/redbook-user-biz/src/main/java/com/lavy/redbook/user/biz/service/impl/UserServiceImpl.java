@@ -10,8 +10,10 @@ import org.springframework.web.multipart.MultipartFile;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.base.Preconditions;
 import com.lavy.redbook.framework.biz.context.holder.LoginUserContextHolder;
+import com.lavy.redbook.framework.common.exception.BizException;
 import com.lavy.redbook.framework.common.response.Response;
 import com.lavy.redbook.framework.common.util.ParamUtils;
+import com.lavy.redbook.user.biz.OssRpcService;
 import com.lavy.redbook.user.biz.domain.dataobject.UserDO;
 import com.lavy.redbook.user.biz.domain.mapper.UserDOMapper;
 import com.lavy.redbook.user.biz.enums.ResponseCodeEnum;
@@ -19,6 +21,7 @@ import com.lavy.redbook.user.biz.enums.SexEnum;
 import com.lavy.redbook.user.biz.model.vo.UpdateUserInfoReqVO;
 import com.lavy.redbook.user.biz.service.UserService;
 
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -31,6 +34,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class UserServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implements UserService {
 
+    @Resource
+    private OssRpcService ossRpcService;
 
     /**
      * 更新用户信息
@@ -47,7 +52,24 @@ public class UserServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implement
         // 头像
         MultipartFile avatar = updateUserInfoReqVO.getAvatar();
         if (avatar != null) {
-            // todo 上传头像
+            String url = ossRpcService.uploadFile(avatar);
+            log.info("==> 调用 oss 服务成功，上传头像，url：{}", avatar);
+            if (StringUtils.isBlank(url)) {
+                throw new BizException(ResponseCodeEnum.UPLOAD_AVATAR_FAIL);
+            }
+            userDO.setAvatar(url);
+            needUpdate = true;
+        }
+        // 背景图
+        MultipartFile backgroundImg = updateUserInfoReqVO.getBackgroundImg();
+        if (backgroundImg != null) {
+            String url = ossRpcService.uploadFile(backgroundImg);
+            log.info("==> 调用 oss 服务成功，上传背景图，url：{}", backgroundImg);
+            if (StringUtils.isBlank(url)) {
+                throw new BizException(ResponseCodeEnum.UPLOAD_BACKGROUND_IMG_FAIL);
+            }
+            userDO.setBackgroundImg(url);
+            needUpdate = true;
         }
         // 昵称
         String nickname = updateUserInfoReqVO.getNickname();

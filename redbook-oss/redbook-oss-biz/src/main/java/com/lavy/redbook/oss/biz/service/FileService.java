@@ -18,5 +18,5 @@ public interface FileService {
      * @param file 文件
      * @return 文件上传结果
      */
-    Response<?> uploadFile(MultipartFile file);
+    Response<String> uploadFile(MultipartFile file);
 }

@@ -24,12 +24,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class FileController {
 
-
     @Resource
     private FileService fileService;
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Response<?> uploadFile(@RequestPart(value = "file") MultipartFile file) {
+    public Response<String> uploadFile(@RequestPart(value = "file") MultipartFile file) {
         return fileService.uploadFile(file);
     }
 }

@@ -19,6 +19,14 @@
             <artifactId>redbook-common</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.lavy.redbook</groupId>
+            <artifactId>redbook-spring-boot-starter-biz-operationlog</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.lavy.redbook</groupId>
+            <artifactId>redbook-spring-boot-starter-jackson</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>

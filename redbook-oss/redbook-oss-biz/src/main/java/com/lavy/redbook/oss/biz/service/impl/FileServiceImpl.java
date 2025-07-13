@@ -24,8 +24,7 @@ public class FileServiceImpl implements FileService {
     private FileStrategy fileStrategy;
 
     @Override
-    public Response<?> uploadFile(MultipartFile file) {
-        fileStrategy.uploadFile(file, "redbook-user");
-        return Response.success();
+    public Response<String> uploadFile(MultipartFile file) {
+        return Response.success(fileStrategy.uploadFile(file, "redbook-user"));
     }
 }

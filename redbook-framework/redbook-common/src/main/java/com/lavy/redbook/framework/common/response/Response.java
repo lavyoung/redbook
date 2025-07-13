@@ -15,7 +15,7 @@ import lombok.Data;
 public class Response<T> implements Serializable {
 
     // 是否成功
-    private Boolean success = true;
+    private boolean success = true;
     private String message;
     private String errorCode;
     private T data;
