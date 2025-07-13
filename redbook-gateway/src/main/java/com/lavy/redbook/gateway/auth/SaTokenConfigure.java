@@ -31,7 +31,7 @@ public class SaTokenConfigure {
                             .check(r -> StpUtil.checkLogin()); // 验证是否登录
 
                     // 用户注销登录验证权限
-                    SaRouter.match("/auth/user/logout", () -> StpUtil.checkPermission("user"));
+                    SaRouter.match("/auth/user/logout", () -> StpUtil.checkRole("common_user"));
                 })
                 .setError(e -> SaResult.error(e.getMessage()));
     }
