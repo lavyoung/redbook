@@ -1,11 +1,11 @@
-package com.lavy.redbook.auth.service.impl;
+package com.lavy.redbook.user.biz.service.impl;
 
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.lavy.redbook.auth.domain.dataobject.UserRoleRelDO;
-import com.lavy.redbook.auth.domain.mapper.UserRoleRelDOMapper;
-import com.lavy.redbook.auth.service.UserRoleRelService;
+import com.lavy.redbook.user.biz.domain.dataobject.UserRoleRelDO;
+import com.lavy.redbook.user.biz.domain.mapper.UserRoleRelDOMapper;
+import com.lavy.redbook.user.biz.service.UserRoleRelService;
 
 import lombok.extern.slf4j.Slf4j;
 

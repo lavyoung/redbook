@@ -1,9 +1,9 @@
-package com.lavy.redbook.auth.service;
+package com.lavy.redbook.user.biz.service;
 
 import java.util.List;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.lavy.redbook.auth.domain.dataobject.RoleDO;
+import com.lavy.redbook.user.biz.domain.dataobject.RoleDO;
 
 /**
  * @author <a href="lavyoung1325@outlook.com">lavy</a>

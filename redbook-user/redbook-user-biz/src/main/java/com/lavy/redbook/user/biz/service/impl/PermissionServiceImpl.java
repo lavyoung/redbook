@@ -1,13 +1,13 @@
-package com.lavy.redbook.auth.service.impl;
+package com.lavy.redbook.user.biz.service.impl;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.lavy.redbook.auth.domain.dataobject.PermissionDO;
-import com.lavy.redbook.auth.domain.mapper.PermissionDOMapper;
-import com.lavy.redbook.auth.service.PermissionService;
+import com.lavy.redbook.user.biz.domain.dataobject.PermissionDO;
+import com.lavy.redbook.user.biz.domain.mapper.PermissionDOMapper;
+import com.lavy.redbook.user.biz.service.PermissionService;
 
 import lombok.extern.slf4j.Slf4j;
 

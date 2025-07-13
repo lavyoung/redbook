@@ -1,8 +1,8 @@
 package com.lavy.redbook.auth.service.impl;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -14,7 +14,6 @@ import org.springframework.util.Assert;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.base.Preconditions;
 import com.lavy.redbook.auth.constant.RedisKeyConstants;
-import com.lavy.redbook.auth.constant.RoleConstants;
 import com.lavy.redbook.auth.domain.dataobject.RoleDO;
 import com.lavy.redbook.auth.domain.dataobject.UserDO;
 import com.lavy.redbook.auth.domain.dataobject.UserRoleRelDO;
@@ -25,10 +24,9 @@ import com.lavy.redbook.auth.enums.LoginTypeEnum;
 import com.lavy.redbook.auth.enums.ResponseCodeEnum;
 import com.lavy.redbook.auth.model.vo.user.UpdatePasswordReqVO;
 import com.lavy.redbook.auth.model.vo.user.UserLoginReqVO;
+import com.lavy.redbook.auth.rpc.UserRpcService;
 import com.lavy.redbook.auth.service.UserService;
 import com.lavy.redbook.framework.biz.context.holder.LoginUserContextHolder;
-import com.lavy.redbook.framework.common.eumns.DeletedEnum;
-import com.lavy.redbook.framework.common.eumns.StatusEnum;
 import com.lavy.redbook.framework.common.exception.BizException;
 import com.lavy.redbook.framework.common.response.Response;
 import com.lavy.redbook.framework.common.util.JsonUtils;
@@ -58,6 +56,9 @@ public class UserServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implement
     private TransactionTemplate transactionTemplate;
     @Resource
     private PasswordEncoder passwordEncoder;
+    @Resource
+    private UserRpcService userRpcService;
+
     /**
      * 用户登录/注册
      *
@@ -90,7 +91,11 @@ public class UserServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implement
                 log.info("用户信息： 手机号：{}， 用户：{}", phone, userDO);
                 if (userDO == null) {
                     // 自动注册
-                    userId = this.register(phone);
+                    userId = userRpcService.registerUser(phone);
+                    // 若调用用户服务，返回的用户 ID 为空，则提示登录失败
+                    if (Objects.isNull(userId)) {
+                        throw new BizException(ResponseCodeEnum.LOGIN_FAIL);
+                    }
                 } else {
                     // 登录
                     this.pushUserRoles(userDO.getId());
@@ -156,52 +161,6 @@ public class UserServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implement
                 }
             }
         }
-    }
-
-    /**
-     * 用户注册
-     *
-     * @param phone 手机号
-     * @return 注册成功后的用户 ID
-     */
-    public Long register(String phone) {
-        return transactionTemplate.execute(status -> {
-            try {
-                Long redbookUserId = redisTemplate.opsForValue().increment(RedisKeyConstants.REDBOOK_ID_GENERATOR_KEY);
-                UserDO userDO = UserDO.builder()
-                        .redbookId(String.valueOf(redbookUserId))
-                        .phone(phone)
-                        .nickname("momo" + redbookUserId)
-                        .status(StatusEnum.ENABLED.getValue())
-                        .createTime(LocalDateTime.now())
-                        .updateTime(LocalDateTime.now())
-                        .isDeleted(DeletedEnum.NO.getValue())
-                        .build();
-                // 插入用户
-                this.baseMapper.insert(userDO);
-                // 插入用户角色关系
-                UserRoleRelDO roleRelDO = UserRoleRelDO.builder()
-                        .userId(userDO.getId())
-                        .roleId(RoleConstants.COMMON_USER_ROLE_ID)
-                        .createTime(LocalDateTime.now())
-                        .updateTime(LocalDateTime.now())
-                        .isDeleted(DeletedEnum.NO.getValue())
-                        .build();
-                this.userRoleRelDOMapper.insert(roleRelDO);
-                RoleDO roleDO = roleDOMapper.selectByPrimaryKey(RoleConstants.COMMON_USER_ROLE_ID);
-
-                // 添加用户角色到Redis
-                List<String> roles = new ArrayList<>(1);
-                roles.add(roleDO.getRoleKey());
-                String userRoleKey = RedisKeyConstants.buildUserRoleKey(userDO.getId());
-                redisTemplate.opsForValue().set(userRoleKey, JsonUtils.toJsonString(roles));
-                return userDO.getId();
-            } catch (Exception e) {
-                log.error("系统注册用户异常", e);
-                status.setRollbackOnly();
-                return null;
-            }
-        });
     }
 
 

@@ -1,4 +1,4 @@
-package com.lavy.redbook.auth.runner;
+package com.lavy.redbook.user.biz.runner;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,14 +14,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import com.google.common.collect.Maps;
-import com.lavy.redbook.auth.constant.RedisKeyConstants;
-import com.lavy.redbook.auth.domain.dataobject.PermissionDO;
-import com.lavy.redbook.auth.domain.dataobject.RoleDO;
-import com.lavy.redbook.auth.domain.dataobject.RolePermissionRelDO;
-import com.lavy.redbook.auth.service.PermissionService;
-import com.lavy.redbook.auth.service.RolePermissionRelService;
-import com.lavy.redbook.auth.service.RoleService;
 import com.lavy.redbook.framework.common.util.JsonUtils;
+import com.lavy.redbook.user.biz.constant.RedisKeyConstants;
+import com.lavy.redbook.user.biz.domain.dataobject.PermissionDO;
+import com.lavy.redbook.user.biz.domain.dataobject.RoleDO;
+import com.lavy.redbook.user.biz.domain.dataobject.RolePermissionRelDO;
+import com.lavy.redbook.user.biz.service.PermissionService;
+import com.lavy.redbook.user.biz.service.RolePermissionRelService;
+import com.lavy.redbook.user.biz.service.RoleService;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;

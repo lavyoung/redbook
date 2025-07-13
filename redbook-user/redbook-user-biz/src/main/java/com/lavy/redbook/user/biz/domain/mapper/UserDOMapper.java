@@ -1,5 +1,7 @@
 package com.lavy.redbook.user.biz.domain.mapper;
 
+import org.apache.ibatis.annotations.Param;
+
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.lavy.redbook.user.biz.domain.dataobject.UserDO;
 
@@ -59,4 +61,12 @@ public interface UserDOMapper extends BaseMapper<UserDO> {
      * @return 更新数量
      */
     int updateByPrimaryKey(UserDO record);
+
+    /**
+     * 根据手机号查询用户
+     *
+     * @param phone 手机号
+     * @return 用户
+     */
+    UserDO selectByPhone(@Param("phone") String phone);
 }

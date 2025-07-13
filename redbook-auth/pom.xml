@@ -43,6 +43,11 @@
             <artifactId>redbook-spring-boot-starter-biz-context</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.lavy.redbook</groupId>
+            <artifactId>redbook-user-api</artifactId>
+        </dependency>
+        <!-- 外部依赖 -->
+        <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
         </dependency>

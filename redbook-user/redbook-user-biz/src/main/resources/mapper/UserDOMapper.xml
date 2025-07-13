@@ -33,7 +33,13 @@
         from t_user
         where id = #{id,jdbcType=BIGINT}
     </delete>
-    <insert id="insert" parameterType="com.lavy.redbook.user.biz.domain.dataobject.UserDO">
+    <select id="selectByPhone" resultType="com.lavy.redbook.user.biz.domain.dataobject.UserDO">
+        select id, password
+        from t_user
+        where phone = #{phone}
+    </select>
+    <insert id="insert" parameterType="com.lavy.redbook.user.biz.domain.dataobject.UserDO" useGeneratedKeys="true"
+            keyProperty="id">
         insert into t_user (id, redbook_id, `password`,
                             nickname, avatar, birthday,
                             background_img, phone, sex,
