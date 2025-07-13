@@ -4,6 +4,7 @@ import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.aliyun.oss.OSS;
 import com.lavy.redbook.oss.biz.config.OssProperties;
 import com.lavy.redbook.oss.biz.strategy.FileStrategy;
 import com.lavy.redbook.oss.biz.strategy.impl.AliyunOSSFileStrategy;
@@ -28,6 +29,8 @@ public class FileStrategyFactory {
     private OssProperties ossProperties;
     @Resource
     private MinioClient minioClient;
+    @Resource
+    private OSS aliyunOSSClient;
 
     @Bean
     @RefreshScope
@@ -35,7 +38,7 @@ public class FileStrategyFactory {
         return switch (ossProperties.getType()) {
             case ALIYUN -> {
                 log.info("==> 使用阿里云文件上传策略");
-                yield new AliyunOSSFileStrategy();
+                yield new AliyunOSSFileStrategy(aliyunOSSClient, ossProperties);
             }
             case MINIO -> {
                 log.info("==> 使用Minio文件上传策略");

@@ -18,11 +18,17 @@ public class OssProperties {
 
     private StorageType type;
     private Minio minio;
+    private Aliyun aliyun;
 
     @Data
     public static class Minio {
         private String endpoint;
         private String accessKey;
         private String secretKey;
+    }
+
+    @Data
+    public static class Aliyun {
+        private String endpoint;
     }
 }
