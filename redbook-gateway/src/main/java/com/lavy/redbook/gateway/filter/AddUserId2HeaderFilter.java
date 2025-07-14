@@ -2,6 +2,7 @@ package com.lavy.redbook.gateway.filter;
 
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -18,6 +19,7 @@ import reactor.core.publisher.Mono;
  * @description: 转发请求时，将用户 ID 添加到 Header 请求头中，透传给下游服务
  */
 @Component
+@Order(-99)
 @Slf4j
 public class AddUserId2HeaderFilter implements GlobalFilter {
 
@@ -31,6 +33,7 @@ public class AddUserId2HeaderFilter implements GlobalFilter {
         log.debug("==================> AddUserId2HeaderFilter <======================");
         final long userId;
         try {
+            // todo 登录失效问题
             userId = StpUtil.getLoginIdAsLong();
         } catch (Exception e) {
             log.debug("==> 没有登录无需处理，直接放行");

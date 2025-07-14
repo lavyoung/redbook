@@ -38,6 +38,7 @@ import com.lavy.redbook.user.biz.domain.mapper.UserRoleRelDOMapper;
 import com.lavy.redbook.user.biz.enums.ResponseCodeEnum;
 import com.lavy.redbook.user.biz.enums.SexEnum;
 import com.lavy.redbook.user.biz.model.vo.UpdateUserInfoReqVO;
+import com.lavy.redbook.user.biz.rpc.DistributedIdGeneratorRpcService;
 import com.lavy.redbook.user.biz.rpc.OssRpcService;
 import com.lavy.redbook.user.biz.service.UserService;
 
@@ -66,6 +67,8 @@ public class UserServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implement
     private TransactionTemplate transactionTemplate;
     @Resource
     private PasswordEncoder passwordEncoder;
+    @Resource
+    private DistributedIdGeneratorRpcService distributedIdGeneratorRpcService;
 
     /**
      * 更新用户信息
@@ -167,11 +170,11 @@ public class UserServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implement
 
         // 否则注册新用户
         // 获取全局自增的小哈书 ID
-        Long xiaohashuId = redisTemplate.opsForValue().increment(RedisKeyConstants.REDBOOK_ID_GENERATOR_KEY);
+        String xiaohashuId = distributedIdGeneratorRpcService.getRBSegmentId();
 
         UserDO userDO = UserDO.builder()
                 .phone(phone)
-                .redbookId(String.valueOf(xiaohashuId))
+                .redbookId(distributedIdGeneratorRpcService.getUserSegmentId())
                 .nickname("小红薯" + xiaohashuId)
                 .status(StatusEnum.ENABLED.getValue())
                 .createTime(LocalDateTime.now())

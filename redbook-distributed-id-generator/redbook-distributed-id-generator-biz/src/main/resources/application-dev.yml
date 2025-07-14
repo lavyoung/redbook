@@ -1,0 +1,5 @@
+logging:
+  level:
+    com.lavy.redbook.distributed.id.generator: debug
+
+

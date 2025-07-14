@@ -34,3 +34,7 @@ spring:
             - Path=/user/**
           filters:
             - StripPrefix=1
+        - id: redbook-kv
+          uri: lb://redbook-kv
+          predicates:
+            - Path=/kv/**
