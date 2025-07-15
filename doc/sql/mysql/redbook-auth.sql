@@ -1,6 +1,11 @@
+create
+database redbook_user default character set utf8mb4 collate utf8mb4_unicode_ci;
+
+use
+redbook_user;
 CREATE TABLE `t_user`
 (
-    `id` bigint unsigned  NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `id`             bigint unsigned  NOT NULL AUTO_INCREMENT COMMENT '主键ID',
     `redbook_id`     varchar(15) NOT NULL COMMENT '小哈书号(唯一凭证)',
     `password`       varchar(64)          DEFAULT NULL COMMENT '密码',
     `nickname`       varchar(24) NOT NULL COMMENT '昵称',

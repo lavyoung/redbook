@@ -20,6 +20,7 @@
         <module>redbook-user</module>
         <module>redbook-kv</module>
         <module>redbook-distributed-id-generator</module>
+        <module>redbook-note</module>
     </modules>
 
     <packaging>pom</packaging>

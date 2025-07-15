@@ -21,4 +21,8 @@ public class FindNoteContentReqDTO {
     @NotBlank(message = "笔记 ID 不能为空")
     private String noteId;
 
+    /**
+     * 笔记内容
+     */
+    private String content;
 }

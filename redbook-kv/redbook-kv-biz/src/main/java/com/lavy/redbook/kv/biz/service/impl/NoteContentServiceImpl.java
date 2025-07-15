@@ -36,13 +36,13 @@ public class NoteContentServiceImpl implements NoteContentService {
     @Override
     public Response<?> addNoteContent(AddNoteContentReqDTO addNoteContentReqDTO) {
         // 笔记 ID
-        Long noteId = addNoteContentReqDTO.getNoteId();
+        String noteId = addNoteContentReqDTO.getNoteId();
         // 笔记内容
         String content = addNoteContentReqDTO.getContent();
 
-        // 构建数据库 DO 实体类 // TODO: 暂时用 UUID, 目的是为了下一章讲解压测，不用动态传笔记 ID。后续改为笔记服务传过来的笔记 ID
+        // 构建数据库 DO 实体类
         NoteContentDO nodeContent = NoteContentDO.builder()
-                .id(UUID.randomUUID())
+                .id(UUID.fromString(noteId))
                 .content(content)
                 .build();
 
