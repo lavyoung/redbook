@@ -2,6 +2,7 @@ package com.lavy.redbook.note.biz;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 
 /**
  * @author <a href="lavyoung1325@outlook.com">lavy</a>
@@ -10,6 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @description: RedbookNoteBizApp
  */
 @SpringBootApplication
+@EnableFeignClients(basePackages = "com.lavy.redbook")
 public class RedbookNoteBizApp {
 
     public static void main(String[] args) {

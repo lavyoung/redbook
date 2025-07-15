@@ -35,6 +35,18 @@
             <artifactId>redbook-spring-boot-starter-biz-operationlog</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.lavy.redbook</groupId>
+            <artifactId>redbook-distributed-id-generator-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.lavy.redbook</groupId>
+            <artifactId>redbook-kv-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.lavy.redbook</groupId>
+            <artifactId>redbook-note-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>

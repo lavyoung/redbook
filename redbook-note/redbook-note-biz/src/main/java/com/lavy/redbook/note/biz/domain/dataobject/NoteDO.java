@@ -54,4 +54,5 @@ public class NoteDO {
 
     private NoteStatusEnum status;
 
+    private String contentUuid;
 }
