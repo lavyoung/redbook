@@ -5,13 +5,13 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -44,6 +44,7 @@ import com.lavy.redbook.user.biz.rpc.DistributedIdGeneratorRpcService;
 import com.lavy.redbook.user.biz.rpc.OssRpcService;
 import com.lavy.redbook.user.biz.service.UserService;
 
+import cn.hutool.core.util.RandomUtil;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
@@ -65,10 +66,8 @@ public class UserServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implement
     private UserRoleRelDOMapper userRoleRelDOMapper;
     @Resource
     private RoleDOMapper roleDOMapper;
-    @Resource
-    private TransactionTemplate transactionTemplate;
-    @Resource
-    private PasswordEncoder passwordEncoder;
+    @Resource(name = "taskExecutor")
+    private Executor taskExecutor;
     @Resource
     private DistributedIdGeneratorRpcService distributedIdGeneratorRpcService;
 
@@ -275,14 +274,36 @@ public class UserServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implement
     @Override
     public Response<FindUserByIdRspDTO> findById(FindUserByIdReqDTO findUserByIdReqDTO) {
         Long userId = findUserByIdReqDTO.getId();
+        if (userId == null) {
+            return Response.fail(ResponseCodeEnum.PARAM_NOT_VALID);
+        }
+        String userInfoKey = RedisKeyConstants.buildUserInfoKey(userId);
+        String userInfoRedis = (String) redisTemplate.opsForValue().get(userInfoKey);
+
+        // 缓存中存在该用户信息
+        if (StringUtils.isNotBlank(userInfoRedis)) {
+            FindUserByIdRspDTO userByIdRspDTO = JsonUtils.parseObject(userInfoRedis, FindUserByIdRspDTO.class);
+            return Response.success(userByIdRspDTO);
+        }
+
         UserDO userDO = this.baseMapper.selectById(userId);
         if (userDO != null) {
-            return Response.success(FindUserByIdRspDTO.builder()
+            FindUserByIdRspDTO rspDTO = FindUserByIdRspDTO.builder()
                     .id(userDO.getId())
                     .nickName(userDO.getNickname())
                     .avatar(userDO.getAvatar())
-                    .build());
+                    .build();
+            taskExecutor.execute(() -> {
+                long expireSecond = 60L * 60 * 24 + RandomUtil.randomInt(60 * 60 * 24);
+                redisTemplate.opsForValue()
+                        .set(userInfoKey, JsonUtils.toJsonString(rspDTO), expireSecond, TimeUnit.SECONDS);
+            });
+            return Response.success(rspDTO);
         }
+        // 缓存用户信息 null 防止缓存穿透
+        taskExecutor.execute(() -> {
+            redisTemplate.opsForValue().set(userInfoKey, "null", 60L * 60 * 24, TimeUnit.SECONDS);
+        });
         throw new BizException(ResponseCodeEnum.USER_NOT_FOUND);
     }
 }
