@@ -23,9 +23,11 @@ import com.lavy.redbook.framework.common.exception.BizException;
 import com.lavy.redbook.framework.common.response.Response;
 import com.lavy.redbook.framework.common.util.JsonUtils;
 import com.lavy.redbook.framework.common.util.ParamUtils;
+import com.lavy.redbook.user.api.dto.req.FindUserByIdReqDTO;
 import com.lavy.redbook.user.api.dto.req.FindUserByPhoneReqDTO;
 import com.lavy.redbook.user.api.dto.req.RegisterUserReqDTO;
 import com.lavy.redbook.user.api.dto.req.UpdateUserPasswordReqDTO;
+import com.lavy.redbook.user.api.dto.resp.FindUserByIdRspDTO;
 import com.lavy.redbook.user.api.dto.resp.FindUserByPhoneRspDTO;
 import com.lavy.redbook.user.biz.constant.RedisKeyConstants;
 import com.lavy.redbook.user.biz.constant.RoleConstants;
@@ -268,5 +270,19 @@ public class UserServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implement
         }
         return Response.success();
 
+    }
+
+    @Override
+    public Response<FindUserByIdRspDTO> findById(FindUserByIdReqDTO findUserByIdReqDTO) {
+        Long userId = findUserByIdReqDTO.getId();
+        UserDO userDO = this.baseMapper.selectById(userId);
+        if (userDO != null) {
+            return Response.success(FindUserByIdRspDTO.builder()
+                    .id(userDO.getId())
+                    .nickName(userDO.getNickname())
+                    .avatar(userDO.getAvatar())
+                    .build());
+        }
+        throw new BizException(ResponseCodeEnum.USER_NOT_FOUND);
     }
 }

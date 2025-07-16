@@ -2,9 +2,11 @@ package com.lavy.redbook.user.biz.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lavy.redbook.framework.common.response.Response;
+import com.lavy.redbook.user.api.dto.req.FindUserByIdReqDTO;
 import com.lavy.redbook.user.api.dto.req.FindUserByPhoneReqDTO;
 import com.lavy.redbook.user.api.dto.req.RegisterUserReqDTO;
 import com.lavy.redbook.user.api.dto.req.UpdateUserPasswordReqDTO;
+import com.lavy.redbook.user.api.dto.resp.FindUserByIdRspDTO;
 import com.lavy.redbook.user.api.dto.resp.FindUserByPhoneRspDTO;
 import com.lavy.redbook.user.biz.domain.dataobject.UserDO;
 import com.lavy.redbook.user.biz.model.vo.UpdateUserInfoReqVO;
@@ -56,5 +58,13 @@ public interface UserService extends IService<UserDO> {
      * @return 推送结果
      */
     Response<?> pushUserRoles(Long userId);
+
+    /**
+     * 根据用户ID查询用户信息
+     *
+     * @param findUserByIdReqDTO 查询用户信息请求参数
+     * @return 用户信息
+     */
+    Response<FindUserByIdRspDTO> findById(FindUserByIdReqDTO findUserByIdReqDTO);
 
 }
