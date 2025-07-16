@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.base.Preconditions;
 import com.lavy.redbook.framework.biz.context.holder.LoginUserContextHolder;
 import com.lavy.redbook.framework.common.eumns.DeletedEnum;
@@ -70,6 +72,16 @@ public class UserServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implement
     private Executor taskExecutor;
     @Resource
     private DistributedIdGeneratorRpcService distributedIdGeneratorRpcService;
+
+    /**
+     * 本地缓存
+     */
+    private static Cache<Long, FindUserByIdRspDTO> LOCAL_CACHE = Caffeine.newBuilder()
+            .initialCapacity(10000)
+            .maximumSize(10000)
+            .expireAfterWrite(1, TimeUnit.HOURS)
+            .build();
+
 
     /**
      * 更新用户信息
@@ -277,12 +289,18 @@ public class UserServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implement
         if (userId == null) {
             return Response.fail(ResponseCodeEnum.PARAM_NOT_VALID);
         }
+        FindUserByIdRspDTO dto = LOCAL_CACHE.getIfPresent(userId);
+        if (dto != null) {
+            log.debug("==> 从缓存中获取用户信息：{}", userId);
+            return Response.success(dto);
+        }
         String userInfoKey = RedisKeyConstants.buildUserInfoKey(userId);
         String userInfoRedis = (String) redisTemplate.opsForValue().get(userInfoKey);
 
         // 缓存中存在该用户信息
         if (StringUtils.isNotBlank(userInfoRedis)) {
             FindUserByIdRspDTO userByIdRspDTO = JsonUtils.parseObject(userInfoRedis, FindUserByIdRspDTO.class);
+            taskExecutor.execute(() -> LOCAL_CACHE.put(userId, userByIdRspDTO));
             return Response.success(userByIdRspDTO);
         }
 
