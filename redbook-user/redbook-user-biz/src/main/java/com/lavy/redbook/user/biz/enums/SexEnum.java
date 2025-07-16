@@ -9,7 +9,7 @@ import lombok.Getter;
  * @author <a href="lavyoung1325@outlook.com">lavy</a>
  * @date: 2025/7/13
  * @version: v1.0.0
- * @description: todo
+ * @description: 性别枚举
  */
 @Getter
 @AllArgsConstructor

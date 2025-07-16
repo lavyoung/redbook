@@ -38,3 +38,9 @@ spring:
           uri: lb://redbook-kv
           predicates:
             - Path=/kv/**
+        - id: redbook-note
+          uri: lb://redbook-note
+          predicates:
+            - Path=/note/**
+          filters:
+            - StripPrefix=1

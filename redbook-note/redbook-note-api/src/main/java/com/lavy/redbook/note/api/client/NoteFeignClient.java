@@ -11,7 +11,7 @@ import com.lavy.redbook.note.api.constant.ApiConstant;
  * @description: 笔记服务
  */
 @FeignClient(name = ApiConstant.SERVICE_NAME, path = "")
-public class NoteFeignClient {
+public interface NoteFeignClient {
 
 
 }

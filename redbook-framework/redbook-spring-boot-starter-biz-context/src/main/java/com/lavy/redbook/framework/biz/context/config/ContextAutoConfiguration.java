@@ -9,7 +9,7 @@ import com.lavy.redbook.framework.biz.context.filter.HeaderUserId2ContextFilter;
  * @author <a href="lavyoung1325@outlook.com">lavy</a>
  * @date: 2025/7/13
  * @version: v1.0.0
- * @description: todo
+ * @description: 添加用户ID到上下文过滤器
  */
 @AutoConfiguration
 public class ContextAutoConfiguration {

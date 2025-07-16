@@ -4,13 +4,15 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.lavy.redbook.distributed.id.generator.api.constant.ApiConstants;
+
 /**
  * @author <a href="lavyoung1325@outlook.com">lavy</a>
  * @date: 2025/7/14
  * @version: v1.0.0
  * @description: 分布式id生成器 feign 客户端
  */
-@FeignClient(name = "redbook-distributed-id-generator-biz", path = "")
+@FeignClient(name = ApiConstants.SERVICE_NAME, path = "")
 public interface DistributedIdGeneratorFeignClient {
 
     String PREFIX = "/id";
