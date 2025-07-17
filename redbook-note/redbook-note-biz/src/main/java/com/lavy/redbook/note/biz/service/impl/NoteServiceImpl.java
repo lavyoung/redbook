@@ -23,6 +23,7 @@ import com.lavy.redbook.framework.common.response.Response;
 import com.lavy.redbook.framework.common.util.JsonUtils;
 import com.lavy.redbook.note.api.vo.req.FindNoteDetailReqVO;
 import com.lavy.redbook.note.api.vo.req.PublishNoteReqVO;
+import com.lavy.redbook.note.api.vo.req.UpdateNoteReqVO;
 import com.lavy.redbook.note.api.vo.resp.FindNoteDetailRspVO;
 import com.lavy.redbook.note.biz.constant.RedisKeyConstants;
 import com.lavy.redbook.note.biz.domain.dataobject.NoteDO;
@@ -254,6 +255,82 @@ public class NoteServiceImpl extends ServiceImpl<NoteDOMapper, NoteDO> implement
             redisTemplate.opsForValue().set(noteDetailRedisKey, noteDetailJson1, expireSeconds, TimeUnit.SECONDS);
         });
         return Response.success(findNoteDetailRspVO);
+    }
+
+    @Override
+    public Response<?> updateNote(UpdateNoteReqVO updateNoteReqVO) {
+        Long noteId = updateNoteReqVO.getId();
+        // 笔记类型
+        Integer type = updateNoteReqVO.getType();
+
+        NoteTypeEnum typeEnum = NoteTypeEnum.valueOf(type);
+
+        if (Objects.isNull(typeEnum)) {
+            throw new BizException(ResponseCodeEnum.NOTE_TYPE_ERROR);
+        }
+
+        String imgUriStr = null;
+        String videoUri = null;
+        switch (typeEnum) {
+            case IMAGE_TEXT -> {
+                List<String> imgUris = updateNoteReqVO.getImgUris();
+                Preconditions.checkArgument(imgUris != null && !imgUris.isEmpty(), "笔记图片不能为空");
+                Preconditions.checkArgument(imgUris.size() <= 9, "图片数量不能超过 9 张");
+                imgUriStr = String.join(",", imgUris);
+            }
+            case VIDEO -> {
+                videoUri = updateNoteReqVO.getVideoUri();
+                Preconditions.checkArgument(StringUtils.isNotEmpty(videoUri), "笔记视频不能为空");
+            }
+            default -> {
+
+            }
+        }
+
+        // 主题
+        Long topicId = updateNoteReqVO.getTopicId();
+        String topicName = null;
+        if (topicId != null) {
+            TopicDO topicDO = topicService.getById(topicId);
+            if (Objects.isNull(topicDO)) {
+                throw new BizException(ResponseCodeEnum.TOPIC_NOT_FOUND);
+            }
+        }
+
+        String content = updateNoteReqVO.getContent();
+        NoteDO noteDO = NoteDO.builder()
+                .id(noteId)
+                .isContentEmpty(StringUtils.isEmpty(content))
+                .title(updateNoteReqVO.getTitle())
+                .imgUris(imgUriStr)
+                .topicId(topicId)
+                .topicName(topicName)
+                .type(typeEnum)
+                .videoUri(videoUri)
+                .updateTime(LocalDateTime.now())
+                .build();
+        this.baseMapper.updateByPrimaryKey(noteDO);
+
+        String detailKey = RedisKeyConstants.buildNoteDetailKey(noteId);
+        redisTemplate.delete(detailKey);
+        LOCAL_CACHE.invalidate(noteId);
+
+
+        NoteDO selected = this.baseMapper.selectByPrimaryKey(noteId);
+        String contentUuid = selected.getContentUuid();
+        if (StringUtils.isNotEmpty(content)) {
+            // 若将无内容的笔记，更新为了有内容的笔记，需要重新生成 UUID
+            contentUuid = StringUtils.isBlank(contentUuid) ? UUID.randomUUID().toString() : contentUuid;
+            // 调用 K-V 更新短文本
+            boolean isUpdateContentSuccess = kvRpcService.saveNoteContent(contentUuid, content);
+            // 如果更新失败，抛出业务异常，回滚事务
+            if (!isUpdateContentSuccess) {
+                throw new BizException(ResponseCodeEnum.NOTE_UPDATE_FAIL);
+            }
+        } else {
+            kvRpcService.deleteNoteContent(contentUuid);
+        }
+        return Response.success();
     }
 
     /**

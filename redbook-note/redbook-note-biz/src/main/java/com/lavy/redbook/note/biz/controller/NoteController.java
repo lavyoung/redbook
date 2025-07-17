@@ -10,6 +10,7 @@ import com.lavy.redbook.framework.biz.operationlog.aspect.ApiOperationLog;
 import com.lavy.redbook.framework.common.response.Response;
 import com.lavy.redbook.note.api.vo.req.FindNoteDetailReqVO;
 import com.lavy.redbook.note.api.vo.req.PublishNoteReqVO;
+import com.lavy.redbook.note.api.vo.req.UpdateNoteReqVO;
 import com.lavy.redbook.note.api.vo.resp.FindNoteDetailRspVO;
 import com.lavy.redbook.note.biz.service.NoteService;
 
@@ -42,10 +43,28 @@ public class NoteController {
         return noteService.publishNote(publishNoteReqVO);
     }
 
+    /**
+     * 笔记详情
+     *
+     * @param findNoteDetailReqVO 笔记 ID
+     * @return 笔记详情
+     */
     @PostMapping(value = "/detail")
     @ApiOperationLog(description = "笔记详情")
     public Response<FindNoteDetailRspVO> findNoteDetail(
             @Validated @RequestBody FindNoteDetailReqVO findNoteDetailReqVO) {
         return noteService.findNoteDetail(findNoteDetailReqVO);
+    }
+
+    /**
+     * 笔记修改
+     *
+     * @param updateNoteReqVO 笔记修改参数
+     * @return 响应结果
+     */
+    @PostMapping(value = "/update")
+    @ApiOperationLog(description = "笔记修改")
+    public Response<?> updateNote(@Validated @RequestBody UpdateNoteReqVO updateNoteReqVO) {
+        return noteService.updateNote(updateNoteReqVO);
     }
 }
