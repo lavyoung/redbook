@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
@@ -41,6 +42,7 @@ import com.lavy.redbook.user.api.dto.resp.FindUserByIdRspDTO;
 
 import cn.hutool.core.util.RandomUtil;
 import jakarta.annotation.Resource;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -142,7 +144,15 @@ public class NoteServiceImpl extends ServiceImpl<NoteDOMapper, NoteDO> implement
         return Response.success();
     }
 
+    /**
+     * 笔记详情
+     * <p>
+     *
+     * @param findNoteDetailReqVO 查询参数
+     * @return 笔记详情
+     */
     @Override
+    @SneakyThrows
     public Response<FindNoteDetailRspVO> findNoteDetail(FindNoteDetailReqVO findNoteDetailReqVO) {
         Long noteId = findNoteDetailReqVO.getId();
         Long userId = LoginUserContextHolder.getUserId();
@@ -195,32 +205,47 @@ public class NoteServiceImpl extends ServiceImpl<NoteDOMapper, NoteDO> implement
         checkNoteVisible(visible, userId, noteDO.getCreatorId());
 
         // 用户信息
-        FindUserByIdRspDTO creatorUser = userRpcService.findById(noteDO.getCreatorId());
+        CompletableFuture<FindUserByIdRspDTO> userResultFuture =
+                CompletableFuture.supplyAsync(() -> userRpcService.findById(noteDO.getCreatorId()),
+                        threadPoolTaskExecutor);
 
-        String content = null;
+        // 文本
+        CompletableFuture<String> contentResultFuture = CompletableFuture.completedFuture(null);
         if (Objects.equals(noteDO.getIsContentEmpty(), Boolean.FALSE)) {
-            content = kvRpcService.getNoteContent(noteDO.getContentUuid());
-        }
-        List<String> imgUris = null;
-        if (Objects.equals(noteDO.getType(), NoteTypeEnum.IMAGE_TEXT) && StringUtils.isNotEmpty(noteDO.getImgUris())) {
-            imgUris = List.of(noteDO.getImgUris().split(","));
+            contentResultFuture = CompletableFuture
+                    .supplyAsync(() -> kvRpcService.getNoteContent(noteDO.getContentUuid()), threadPoolTaskExecutor);
         }
 
-        FindNoteDetailRspVO findNoteDetailRspVO = FindNoteDetailRspVO.builder()
-                .id(noteDO.getId())
-                .type(noteDO.getType().getCode())
-                .title(noteDO.getTitle())
-                .content(content)
-                .imgUris(imgUris)
-                .topicId(noteDO.getTopicId())
-                .topicName(noteDO.getTopicName())
-                .creatorId(noteDO.getCreatorId())
-                .creatorName(creatorUser.getNickName())
-                .avatar(creatorUser.getAvatar())
-                .videoUri(noteDO.getVideoUri())
-                .updateTime(noteDO.getUpdateTime())
-                .visible(noteDO.getVisible().getCode())
-                .build();
+        // 等待返回
+        CompletableFuture<String> finalContentResultFuture = contentResultFuture;
+        CompletableFuture<FindNoteDetailRspVO> thennedAccept =
+                CompletableFuture.allOf(userResultFuture, finalContentResultFuture)
+                        .thenApply(v -> {
+                            FindUserByIdRspDTO creatorUser = userResultFuture.join();
+                            String content = finalContentResultFuture.join();
+                            List<String> imgUris = null;
+                            if (Objects.equals(noteDO.getType(), NoteTypeEnum.IMAGE_TEXT) && StringUtils.isNotEmpty(
+                                    noteDO.getImgUris())) {
+                                imgUris = List.of(noteDO.getImgUris().split(","));
+                            }
+                            return FindNoteDetailRspVO.builder()
+                                    .id(noteDO.getId())
+                                    .type(noteDO.getType().getCode())
+                                    .title(noteDO.getTitle())
+                                    .content(content)
+                                    .imgUris(imgUris)
+                                    .topicId(noteDO.getTopicId())
+                                    .topicName(noteDO.getTopicName())
+                                    .creatorId(noteDO.getCreatorId())
+                                    .creatorName(creatorUser.getNickName())
+                                    .avatar(creatorUser.getAvatar())
+                                    .videoUri(noteDO.getVideoUri())
+                                    .updateTime(noteDO.getUpdateTime())
+                                    .visible(noteDO.getVisible().getCode())
+                                    .build();
+                        });
+
+        FindNoteDetailRspVO findNoteDetailRspVO = thennedAccept.join();
         // 异步线程中将笔记详情存入 Redis
         threadPoolTaskExecutor.submit(() -> {
             String noteDetailJson1 = JsonUtils.toJsonString(findNoteDetailRspVO);
