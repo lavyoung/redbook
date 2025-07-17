@@ -6,6 +6,8 @@ import com.lavy.redbook.framework.common.response.Response;
 import com.lavy.redbook.kv.api.client.KvFeignClient;
 import com.lavy.redbook.kv.api.dto.req.AddNoteContentReqDTO;
 import com.lavy.redbook.kv.api.dto.req.DeleteNoteContentReqDTO;
+import com.lavy.redbook.kv.api.dto.req.FindNoteContentReqDTO;
+import com.lavy.redbook.kv.api.dto.resp.FindNoteContentRspDTO;
 
 import jakarta.annotation.Resource;
 
@@ -49,5 +51,22 @@ public class KvRpcService {
                 .noteId(uuid)
                 .build();
         return kvFeignClient.deleteNoteContent(deleteNoteContentReqDTO).isSuccess();
+    }
+
+    /**
+     * 查询笔记内容
+     *
+     * @param uuid id
+     * @return 笔记内容
+     */
+    public String getNoteContent(String uuid) {
+        FindNoteContentReqDTO findNoteContentReqDTO = FindNoteContentReqDTO.builder()
+                .noteId(uuid)
+                .build();
+        Response<FindNoteContentRspDTO> noteContent = kvFeignClient.findNoteContent(findNoteContentReqDTO);
+        if (!noteContent.isSuccess()) {
+            return null;
+        }
+        return noteContent.getData().getContent();
     }
 }

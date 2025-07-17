@@ -8,9 +8,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.lavy.redbook.framework.common.response.Response;
 import com.lavy.redbook.user.api.constant.ApiConstants;
+import com.lavy.redbook.user.api.dto.req.FindUserByIdReqDTO;
 import com.lavy.redbook.user.api.dto.req.FindUserByPhoneReqDTO;
 import com.lavy.redbook.user.api.dto.req.RegisterUserReqDTO;
 import com.lavy.redbook.user.api.dto.req.UpdateUserPasswordReqDTO;
+import com.lavy.redbook.user.api.dto.resp.FindUserByIdRspDTO;
 import com.lavy.redbook.user.api.dto.resp.FindUserByPhoneRspDTO;
 
 /**
@@ -58,4 +60,13 @@ public interface UserFeignClient {
      */
     @GetMapping("/pushUserRoles")
     Response<?> pushUserRoles(@RequestParam("userId") Long userId);
+
+    /**
+     * 根据用户 ID 查询用户信息
+     *
+     * @param findUserByIdReqDTO 查询参数 用户ID
+     * @return 用户信息
+     */
+    @PostMapping(value = PREFIX + "/findById")
+    Response<FindUserByIdRspDTO> findById(@RequestBody FindUserByIdReqDTO findUserByIdReqDTO);
 }

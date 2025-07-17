@@ -2,7 +2,9 @@ package com.lavy.redbook.note.biz.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lavy.redbook.framework.common.response.Response;
+import com.lavy.redbook.note.api.vo.req.FindNoteDetailReqVO;
 import com.lavy.redbook.note.api.vo.req.PublishNoteReqVO;
+import com.lavy.redbook.note.api.vo.resp.FindNoteDetailRspVO;
 import com.lavy.redbook.note.biz.domain.dataobject.NoteDO;
 
 /**
@@ -20,4 +22,13 @@ public interface NoteService extends IService<NoteDO> {
      * @return 笔记发布结果
      */
     Response<?> publishNote(PublishNoteReqVO publishNoteReqVO);
+
+    /**
+     * 查询笔记详情
+     *
+     * @param findNoteDetailReqVO 查询笔记详情请求参数
+     * @return 笔记详情
+     */
+    Response<FindNoteDetailRspVO> findNoteDetail(FindNoteDetailReqVO findNoteDetailReqVO);
+
 }

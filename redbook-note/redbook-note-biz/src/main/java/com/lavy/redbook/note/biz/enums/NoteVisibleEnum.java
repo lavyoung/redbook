@@ -1,6 +1,7 @@
 package com.lavy.redbook.note.biz.enums;
 
 import com.baomidou.mybatisplus.annotation.EnumValue;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,5 +26,15 @@ public enum NoteVisibleEnum {
     PRIVATE(1);
 
     @EnumValue
+    @JsonValue
     private final Integer code;
+
+    public static NoteVisibleEnum getByCode(Integer code) {
+        for (NoteVisibleEnum value : values()) {
+            if (value.code.equals(code)) {
+                return value;
+            }
+        }
+        return null;
+    }
 }
