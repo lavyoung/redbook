@@ -3,6 +3,7 @@ package com.lavy.redbook.user.relation.biz;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 
 /**
  * @author <a href="lavyoung1325@outlook.com">lavy</a>
@@ -12,6 +13,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 @SpringBootApplication
 @MapperScan(basePackages = "com.lavy.redbook.user.relation.biz.domain.mapper")
+@EnableFeignClients(basePackages = "com.lavy.redbook")
 public class RedbookUserRealtionApp {
 
     public static void main(String[] args) {

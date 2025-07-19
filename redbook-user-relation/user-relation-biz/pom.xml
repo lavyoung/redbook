@@ -33,6 +33,10 @@
             <groupId>com.lavy.redbook</groupId>
             <artifactId>redbook-user-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.lavy.redbook</groupId>
+            <artifactId>redbook-user-relation-api</artifactId>
+        </dependency>
 
         <!-- SpringBoot -->
         <dependency>

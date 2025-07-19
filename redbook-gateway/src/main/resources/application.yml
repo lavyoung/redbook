@@ -44,3 +44,9 @@ spring:
             - Path=/note/**
           filters:
             - StripPrefix=1
+        - id: redbook-user-relation
+          uri: lb://redbook-user-relation
+          predicates:
+            - Path=/user-relation/**
+          filters:
+            - StripPrefix=1
