@@ -21,6 +21,7 @@
         <module>redbook-kv</module>
         <module>redbook-distributed-id-generator</module>
         <module>redbook-note</module>
+        <module>redbook-user-relation</module>
     </modules>
 
     <packaging>pom</packaging>
@@ -133,6 +134,11 @@
             <dependency>
                 <groupId>com.lavy.redbook</groupId>
                 <artifactId>redbook-note-api</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.lavy.redbook</groupId>
+                <artifactId>redbook-user-relation-api</artifactId>
                 <version>${revision}</version>
             </dependency>
             <!-- 外部依赖 -->
