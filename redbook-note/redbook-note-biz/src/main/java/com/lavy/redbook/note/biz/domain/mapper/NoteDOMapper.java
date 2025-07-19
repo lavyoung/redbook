@@ -58,4 +58,13 @@ public interface NoteDOMapper extends BaseMapper<NoteDO> {
      * @return 更新结果
      */
     int updateByPrimaryKey(NoteDO record);
+
+    /**
+     * 仅对可见的笔记进行更新
+     *
+     * @param noteDO 笔记DO
+     * @return 更新结果
+     */
+    int updateVisibleOnlyMe(NoteDO noteDO);
+
 }

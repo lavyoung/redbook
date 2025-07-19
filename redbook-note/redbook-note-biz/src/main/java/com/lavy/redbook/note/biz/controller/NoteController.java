@@ -12,6 +12,7 @@ import com.lavy.redbook.note.api.vo.req.DeleteNoteReqVO;
 import com.lavy.redbook.note.api.vo.req.FindNoteDetailReqVO;
 import com.lavy.redbook.note.api.vo.req.PublishNoteReqVO;
 import com.lavy.redbook.note.api.vo.req.UpdateNoteReqVO;
+import com.lavy.redbook.note.api.vo.req.UpdateNoteVisibleOnlyMeReqVO;
 import com.lavy.redbook.note.api.vo.resp.FindNoteDetailRspVO;
 import com.lavy.redbook.note.biz.service.NoteService;
 
@@ -79,5 +80,12 @@ public class NoteController {
     @ApiOperationLog(description = "删除笔记")
     public Response<?> deleteNote(@Validated @RequestBody DeleteNoteReqVO deleteNoteReqVO) {
         return noteService.deleteNote(deleteNoteReqVO);
+    }
+
+    @PostMapping(value = "/visible/onlyme")
+    @ApiOperationLog(description = "笔记仅对自己可见")
+    public Response<?> visibleOnlyMe(
+            @Validated @RequestBody UpdateNoteVisibleOnlyMeReqVO updateNoteVisibleOnlyMeReqVO) {
+        return noteService.visibleOnlyMe(updateNoteVisibleOnlyMeReqVO);
     }
 }

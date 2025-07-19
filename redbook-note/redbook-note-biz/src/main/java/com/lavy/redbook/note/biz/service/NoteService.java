@@ -6,6 +6,7 @@ import com.lavy.redbook.note.api.vo.req.DeleteNoteReqVO;
 import com.lavy.redbook.note.api.vo.req.FindNoteDetailReqVO;
 import com.lavy.redbook.note.api.vo.req.PublishNoteReqVO;
 import com.lavy.redbook.note.api.vo.req.UpdateNoteReqVO;
+import com.lavy.redbook.note.api.vo.req.UpdateNoteVisibleOnlyMeReqVO;
 import com.lavy.redbook.note.api.vo.resp.FindNoteDetailRspVO;
 import com.lavy.redbook.note.biz.domain.dataobject.NoteDO;
 
@@ -55,4 +56,12 @@ public interface NoteService extends IService<NoteDO> {
      * @return 删除结果
      */
     Response<?> deleteNote(DeleteNoteReqVO deleteNoteReqVO);
+
+    /**
+     * 笔记仅自己可见
+     *
+     * @param updateNoteVisibleOnlyMeReqVO 笔记仅自己可见请求参数
+     * @return 笔记仅自己可见结果
+     */
+    Response<?> visibleOnlyMe(UpdateNoteVisibleOnlyMeReqVO updateNoteVisibleOnlyMeReqVO);
 }

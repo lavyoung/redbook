@@ -31,6 +31,7 @@ import com.lavy.redbook.note.api.vo.req.DeleteNoteReqVO;
 import com.lavy.redbook.note.api.vo.req.FindNoteDetailReqVO;
 import com.lavy.redbook.note.api.vo.req.PublishNoteReqVO;
 import com.lavy.redbook.note.api.vo.req.UpdateNoteReqVO;
+import com.lavy.redbook.note.api.vo.req.UpdateNoteVisibleOnlyMeReqVO;
 import com.lavy.redbook.note.api.vo.resp.FindNoteDetailRspVO;
 import com.lavy.redbook.note.biz.constant.MQConstants;
 import com.lavy.redbook.note.biz.constant.RedisKeyConstants;
@@ -363,6 +364,29 @@ public class NoteServiceImpl extends ServiceImpl<NoteDOMapper, NoteDO> implement
 
         // 删除缓存
         sendMqMessage(noteId);
+        return Response.success();
+    }
+
+    @Override
+    public Response<?> visibleOnlyMe(UpdateNoteVisibleOnlyMeReqVO updateNoteVisibleOnlyMeReqVO) {
+        // 笔记 ID
+        Long noteId = updateNoteVisibleOnlyMeReqVO.getId();
+
+        // 构建更新 DO 实体类 可见性设置为仅对自己可见
+        NoteDO noteDO = NoteDO.builder()
+                .id(noteId)
+                .visible(NoteVisibleEnum.PRIVATE)
+                .updateTime(LocalDateTime.now())
+                .build();
+
+        // 执行更新 SQL
+        int count = this.baseMapper.updateVisibleOnlyMe(noteDO);
+        // 若影响的行数为 0，则表示该笔记无法修改为仅自己可见
+        if (count == 0) {
+            throw new BizException(ResponseCodeEnum.NOTE_CANT_VISIBLE_ONLY_ME);
+        }
+        // 删除 Redis 缓存
+        this.sendMqMessage(noteId);
         return Response.success();
     }
 
