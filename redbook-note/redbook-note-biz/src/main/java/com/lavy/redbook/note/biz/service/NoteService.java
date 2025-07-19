@@ -40,4 +40,12 @@ public interface NoteService extends IService<NoteDO> {
      */
     Response<?> updateNote(UpdateNoteReqVO updateNoteReqVO);
 
+    /**
+     * 删除笔记缓存
+     *
+     * @param noteId 笔记ID
+     */
+    void deleteNoteLocalCache(Long noteId);
+
+
 }

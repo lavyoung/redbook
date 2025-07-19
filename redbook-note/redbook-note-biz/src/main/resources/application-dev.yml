@@ -55,6 +55,18 @@ spring:
           max-wait: -1ms # 最大等待时间
           min-idle: 0 # 最小空闲连接数
 
+# ======= RocketMQ
+rocketmq:
+  name-server: 192.168.23.200:9876
+  producer:
+    group: redbook-group
+    send-message-timeout: 3000
+    retry-times-when-send-failed: 3
+    retry-times-when-send-async-failed: 3
+    max-message-size: 4096
+  consumer:
+    group: redbook-group
+    pull-batch-size: 5
 
 logging:
   level:

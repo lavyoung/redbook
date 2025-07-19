@@ -8,7 +8,12 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.rocketmq.client.producer.SendCallback;
+import org.apache.rocketmq.client.producer.SendResult;
+import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -25,6 +30,7 @@ import com.lavy.redbook.note.api.vo.req.FindNoteDetailReqVO;
 import com.lavy.redbook.note.api.vo.req.PublishNoteReqVO;
 import com.lavy.redbook.note.api.vo.req.UpdateNoteReqVO;
 import com.lavy.redbook.note.api.vo.resp.FindNoteDetailRspVO;
+import com.lavy.redbook.note.biz.constant.MQConstants;
 import com.lavy.redbook.note.biz.constant.RedisKeyConstants;
 import com.lavy.redbook.note.biz.domain.dataobject.NoteDO;
 import com.lavy.redbook.note.biz.domain.dataobject.NoteDO.NoteDOBuilder;
@@ -68,6 +74,8 @@ public class NoteServiceImpl extends ServiceImpl<NoteDOMapper, NoteDO> implement
     private ThreadPoolTaskExecutor threadPoolTaskExecutor;
     @Resource
     private RedisTemplate<String, String> redisTemplate;
+    @Resource
+    private RocketMQTemplate rocketMQTemplate;
 
     /**
      * 笔记详情本地缓存
@@ -296,6 +304,8 @@ public class NoteServiceImpl extends ServiceImpl<NoteDOMapper, NoteDO> implement
                 throw new BizException(ResponseCodeEnum.TOPIC_NOT_FOUND);
             }
         }
+        String detailKey = RedisKeyConstants.buildNoteDetailKey(noteId);
+        redisTemplate.delete(detailKey);
 
         String content = updateNoteReqVO.getContent();
         NoteDO noteDO = NoteDO.builder()
@@ -311,10 +321,23 @@ public class NoteServiceImpl extends ServiceImpl<NoteDOMapper, NoteDO> implement
                 .build();
         this.baseMapper.updateByPrimaryKey(noteDO);
 
-        String detailKey = RedisKeyConstants.buildNoteDetailKey(noteId);
-        redisTemplate.delete(detailKey);
-        LOCAL_CACHE.invalidate(noteId);
+        // 删除 Redis 缓存
+        // redisTemplate.delete(detailKey);
 
+        // 延迟删除
+        Message<Long> message = MessageBuilder.withPayload(noteId).build();
+        rocketMQTemplate.asyncSend(MQConstants.TOPIC_DELAY_DELETE_NOTE_REDIS_CACHE, message, new SendCallback() {
+            @Override
+            public void onSuccess(SendResult sendResult) {
+                log.info("==>  延迟发送成功, noteId: {}", noteId);
+            }
+
+            @Override
+            public void onException(Throwable throwable) {
+                log.error("==> 延迟删除发送失败：{}， ", noteId, throwable);
+            }
+        }, 3000, 1);
+        rocketMQTemplate.syncSend(MQConstants.TOPIC_DELETE_NOTE_LOCAL_CACHE, message);
 
         NoteDO selected = this.baseMapper.selectByPrimaryKey(noteId);
         String contentUuid = selected.getContentUuid();
@@ -331,6 +354,11 @@ public class NoteServiceImpl extends ServiceImpl<NoteDOMapper, NoteDO> implement
             kvRpcService.deleteNoteContent(contentUuid);
         }
         return Response.success();
+    }
+
+    @Override
+    public void deleteNoteLocalCache(Long noteId) {
+        LOCAL_CACHE.invalidate(noteId);
     }
 
     /**
