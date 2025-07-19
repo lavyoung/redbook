@@ -16,6 +16,7 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -26,6 +27,7 @@ import com.lavy.redbook.framework.biz.context.holder.LoginUserContextHolder;
 import com.lavy.redbook.framework.common.exception.BizException;
 import com.lavy.redbook.framework.common.response.Response;
 import com.lavy.redbook.framework.common.util.JsonUtils;
+import com.lavy.redbook.note.api.vo.req.DeleteNoteReqVO;
 import com.lavy.redbook.note.api.vo.req.FindNoteDetailReqVO;
 import com.lavy.redbook.note.api.vo.req.PublishNoteReqVO;
 import com.lavy.redbook.note.api.vo.req.UpdateNoteReqVO;
@@ -80,11 +82,8 @@ public class NoteServiceImpl extends ServiceImpl<NoteDOMapper, NoteDO> implement
     /**
      * 笔记详情本地缓存
      */
-    private static final Cache<Long, String> LOCAL_CACHE = Caffeine.newBuilder()
-            .initialCapacity(10000)
-            .maximumSize(10000)
-            .expireAfterWrite(1, TimeUnit.HOURS)
-            .build();
+    private static final Cache<Long, String> LOCAL_CACHE =
+            Caffeine.newBuilder().initialCapacity(10000).maximumSize(10000).expireAfterWrite(1, TimeUnit.HOURS).build();
 
 
     @Override
@@ -127,20 +126,12 @@ public class NoteServiceImpl extends ServiceImpl<NoteDOMapper, NoteDO> implement
         Long topicId = publishNoteReqVO.getTopicId();
         if (topicId != null && topicId > 0) {
             TopicDO topicDO = topicService.getById(topicId);
-            builder = builder.topicId(topicId)
-                    .topicName(topicDO.getName());
+            builder = builder.topicId(topicId).topicName(topicDO.getName());
         }
         Long userId = LoginUserContextHolder.getUserId();
-        NoteDO noteDO = builder.title(publishNoteReqVO.getTitle())
-                .id(Long.valueOf(snowflakeId))
-                .isTop(Boolean.FALSE)
-                .creatorId(userId)
-                .type(typeEnum)
-                .status(NoteStatusEnum.NORMAL)
-                .visible(NoteVisibleEnum.PUBLIC)
-                .createTime(LocalDateTime.now())
-                .updateTime(LocalDateTime.now())
-                .build();
+        NoteDO noteDO = builder.title(publishNoteReqVO.getTitle()).id(Long.valueOf(snowflakeId)).isTop(Boolean.FALSE)
+                .creatorId(userId).type(typeEnum).status(NoteStatusEnum.NORMAL).visible(NoteVisibleEnum.PUBLIC)
+                .createTime(LocalDateTime.now()).updateTime(LocalDateTime.now()).build();
         try {
             // 笔记入库存储
             this.baseMapper.insert(builder.build());
@@ -221,38 +212,29 @@ public class NoteServiceImpl extends ServiceImpl<NoteDOMapper, NoteDO> implement
         // 文本
         CompletableFuture<String> contentResultFuture = CompletableFuture.completedFuture(null);
         if (Objects.equals(noteDO.getIsContentEmpty(), Boolean.FALSE)) {
-            contentResultFuture = CompletableFuture
-                    .supplyAsync(() -> kvRpcService.getNoteContent(noteDO.getContentUuid()), threadPoolTaskExecutor);
+            contentResultFuture =
+                    CompletableFuture.supplyAsync(() -> kvRpcService.getNoteContent(noteDO.getContentUuid()),
+                            threadPoolTaskExecutor);
         }
 
         // 等待返回
         CompletableFuture<String> finalContentResultFuture = contentResultFuture;
         CompletableFuture<FindNoteDetailRspVO> thennedAccept =
-                CompletableFuture.allOf(userResultFuture, finalContentResultFuture)
-                        .thenApply(v -> {
-                            FindUserByIdRspDTO creatorUser = userResultFuture.join();
-                            String content = finalContentResultFuture.join();
-                            List<String> imgUris = null;
-                            if (Objects.equals(noteDO.getType(), NoteTypeEnum.IMAGE_TEXT) && StringUtils.isNotEmpty(
-                                    noteDO.getImgUris())) {
-                                imgUris = List.of(noteDO.getImgUris().split(","));
-                            }
-                            return FindNoteDetailRspVO.builder()
-                                    .id(noteDO.getId())
-                                    .type(noteDO.getType().getCode())
-                                    .title(noteDO.getTitle())
-                                    .content(content)
-                                    .imgUris(imgUris)
-                                    .topicId(noteDO.getTopicId())
-                                    .topicName(noteDO.getTopicName())
-                                    .creatorId(noteDO.getCreatorId())
-                                    .creatorName(creatorUser.getNickName())
-                                    .avatar(creatorUser.getAvatar())
-                                    .videoUri(noteDO.getVideoUri())
-                                    .updateTime(noteDO.getUpdateTime())
-                                    .visible(noteDO.getVisible().getCode())
-                                    .build();
-                        });
+                CompletableFuture.allOf(userResultFuture, finalContentResultFuture).thenApply(v -> {
+                    FindUserByIdRspDTO creatorUser = userResultFuture.join();
+                    String content = finalContentResultFuture.join();
+                    List<String> imgUris = null;
+                    if (Objects.equals(noteDO.getType(), NoteTypeEnum.IMAGE_TEXT) && StringUtils.isNotEmpty(
+                            noteDO.getImgUris())) {
+                        imgUris = List.of(noteDO.getImgUris().split(","));
+                    }
+                    return FindNoteDetailRspVO.builder().id(noteDO.getId()).type(noteDO.getType().getCode())
+                            .title(noteDO.getTitle()).content(content).imgUris(imgUris).topicId(noteDO.getTopicId())
+                            .topicName(noteDO.getTopicName()).creatorId(noteDO.getCreatorId())
+                            .creatorName(creatorUser.getNickName()).avatar(creatorUser.getAvatar())
+                            .videoUri(noteDO.getVideoUri()).updateTime(noteDO.getUpdateTime())
+                            .visible(noteDO.getVisible().getCode()).build();
+                });
 
         FindNoteDetailRspVO findNoteDetailRspVO = thennedAccept.join();
         // 异步线程中将笔记详情存入 Redis
@@ -308,36 +290,15 @@ public class NoteServiceImpl extends ServiceImpl<NoteDOMapper, NoteDO> implement
         redisTemplate.delete(detailKey);
 
         String content = updateNoteReqVO.getContent();
-        NoteDO noteDO = NoteDO.builder()
-                .id(noteId)
-                .isContentEmpty(StringUtils.isEmpty(content))
-                .title(updateNoteReqVO.getTitle())
-                .imgUris(imgUriStr)
-                .topicId(topicId)
-                .topicName(topicName)
-                .type(typeEnum)
-                .videoUri(videoUri)
-                .updateTime(LocalDateTime.now())
-                .build();
+        NoteDO noteDO = NoteDO.builder().id(noteId).isContentEmpty(StringUtils.isEmpty(content))
+                .title(updateNoteReqVO.getTitle()).imgUris(imgUriStr).topicId(topicId).topicName(topicName)
+                .type(typeEnum).videoUri(videoUri).updateTime(LocalDateTime.now()).build();
         this.baseMapper.updateByPrimaryKey(noteDO);
 
         // 删除 Redis 缓存
         // redisTemplate.delete(detailKey);
 
-        // 延迟删除
-        Message<Long> message = MessageBuilder.withPayload(noteId).build();
-        rocketMQTemplate.asyncSend(MQConstants.TOPIC_DELAY_DELETE_NOTE_REDIS_CACHE, message, new SendCallback() {
-            @Override
-            public void onSuccess(SendResult sendResult) {
-                log.info("==>  延迟发送成功, noteId: {}", noteId);
-            }
-
-            @Override
-            public void onException(Throwable throwable) {
-                log.error("==> 延迟删除发送失败：{}， ", noteId, throwable);
-            }
-        }, 3000, 1);
-        rocketMQTemplate.syncSend(MQConstants.TOPIC_DELETE_NOTE_LOCAL_CACHE, message);
+        sendMqMessage(noteId);
 
         NoteDO selected = this.baseMapper.selectByPrimaryKey(noteId);
         String contentUuid = selected.getContentUuid();
@@ -356,9 +317,53 @@ public class NoteServiceImpl extends ServiceImpl<NoteDOMapper, NoteDO> implement
         return Response.success();
     }
 
+    /**
+     * 发送延迟消息，延迟删除 Redis 缓存
+     *
+     * @param noteId 笔记 ID
+     */
+    private void sendMqMessage(Long noteId) {
+        // 延迟删除
+        Message<Long> message = MessageBuilder.withPayload(noteId).build();
+        rocketMQTemplate.asyncSend(MQConstants.TOPIC_DELAY_DELETE_NOTE_REDIS_CACHE, message, new SendCallback() {
+            @Override
+            public void onSuccess(SendResult sendResult) {
+                log.info("==>  延迟发送成功, noteId: {}", noteId);
+            }
+
+            @Override
+            public void onException(Throwable throwable) {
+                log.error("==> 延迟删除发送失败：{}， ", noteId, throwable);
+            }
+        }, 3000, 1);
+        // 本地缓存删除
+        rocketMQTemplate.syncSend(MQConstants.TOPIC_DELETE_NOTE_LOCAL_CACHE, message);
+    }
+
     @Override
     public void deleteNoteLocalCache(Long noteId) {
         LOCAL_CACHE.invalidate(noteId);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Response<?> deleteNote(DeleteNoteReqVO deleteNoteReqVO) {
+        // 笔记 ID
+        Long noteId = deleteNoteReqVO.getId();
+        // 逻辑删除
+        NoteDO noteDO =
+                NoteDO.builder().id(noteId).status(NoteStatusEnum.DELETED).updateTime(LocalDateTime.now()).build();
+
+        int count = this.baseMapper.updateByPrimaryKeySelective(noteDO);
+
+        // 若影响的行数为 0，则表示该笔记不存在
+        if (count == 0) {
+            throw new BizException(ResponseCodeEnum.NOTE_NOT_FOUND);
+        }
+
+        // 删除缓存
+        sendMqMessage(noteId);
+        return Response.success();
     }
 
     /**

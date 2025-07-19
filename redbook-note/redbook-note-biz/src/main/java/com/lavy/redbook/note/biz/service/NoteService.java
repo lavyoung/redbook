@@ -2,6 +2,7 @@ package com.lavy.redbook.note.biz.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lavy.redbook.framework.common.response.Response;
+import com.lavy.redbook.note.api.vo.req.DeleteNoteReqVO;
 import com.lavy.redbook.note.api.vo.req.FindNoteDetailReqVO;
 import com.lavy.redbook.note.api.vo.req.PublishNoteReqVO;
 import com.lavy.redbook.note.api.vo.req.UpdateNoteReqVO;
@@ -47,5 +48,11 @@ public interface NoteService extends IService<NoteDO> {
      */
     void deleteNoteLocalCache(Long noteId);
 
-
+    /**
+     * 删除笔记
+     *
+     * @param deleteNoteReqVO 删除笔记请求参数
+     * @return 删除结果
+     */
+    Response<?> deleteNote(DeleteNoteReqVO deleteNoteReqVO);
 }
