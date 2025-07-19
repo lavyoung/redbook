@@ -1,5 +1,7 @@
 package com.lavy.redbook.user.relation.biz.service;
 
+import java.util.List;
+
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lavy.redbook.user.relation.biz.domain.dataobject.FollowingDO;
 
@@ -10,4 +12,12 @@ import com.lavy.redbook.user.relation.biz.domain.dataobject.FollowingDO;
  * @description: 关注服务
  */
 public interface FollowingService extends IService<FollowingDO> {
+
+    /**
+     * 根据用户 ID 查询用户所关注的用户列表
+     *
+     * @param userId 用户 ID
+     * @return 用户所关注的用户列表
+     */
+    List<FollowingDO> selectByUserId(Long userId);
 }

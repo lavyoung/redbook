@@ -109,42 +109,10 @@
         <dependency>
             <groupId>org.apache.rocketmq</groupId>
             <artifactId>rocketmq-spring-boot-starter</artifactId>
-            <exclusions>
-                <exclusion>
-                    <artifactId>okio-jvm</artifactId>
-                    <groupId>com.squareup.okio</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>j2objc-annotations</artifactId>
-                    <groupId>com.google.j2objc</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>error_prone_annotations</artifactId>
-                    <groupId>com.google.errorprone</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>rocketmq-common</artifactId>
-                    <groupId>org.apache.rocketmq</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>rocketmq-remoting</artifactId>
-                    <groupId>org.apache.rocketmq</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.rocketmq</groupId>
             <artifactId>rocketmq-client</artifactId>
-            <exclusions>
-                <exclusion>
-                    <artifactId>error_prone_annotations</artifactId>
-                    <groupId>com.google.errorprone</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>okio-jvm</artifactId>
-                    <groupId>com.squareup.okio</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
     </dependencies>
 

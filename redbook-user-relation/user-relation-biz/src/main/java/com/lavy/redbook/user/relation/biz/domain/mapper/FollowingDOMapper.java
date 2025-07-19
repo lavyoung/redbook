@@ -1,5 +1,7 @@
 package com.lavy.redbook.user.relation.biz.domain.mapper;
 
+import java.util.List;
+
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.lavy.redbook.user.relation.biz.domain.dataobject.FollowingDO;
 
@@ -59,4 +61,14 @@ public interface FollowingDOMapper extends BaseMapper<FollowingDO> {
      * @return 更新数量
      */
     int updateByPrimaryKey(FollowingDO record);
+
+    /**
+     * 根据用户id查询
+     *
+     * @param userId 用户id
+     * @return 关注列表
+     */
+    List<FollowingDO> selectByUserId(Long userId);
+
+    ;
 }

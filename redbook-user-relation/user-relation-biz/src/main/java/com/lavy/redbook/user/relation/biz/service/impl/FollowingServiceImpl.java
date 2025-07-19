@@ -1,5 +1,7 @@
 package com.lavy.redbook.user.relation.biz.service.impl;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -20,4 +22,8 @@ import lombok.extern.slf4j.Slf4j;
 public class FollowingServiceImpl extends ServiceImpl<FollowingDOMapper, FollowingDO> implements FollowingService {
 
 
+    @Override
+    public List<FollowingDO> selectByUserId(Long userId) {
+        return this.baseMapper.selectByUserId(userId);
+    }
 }
