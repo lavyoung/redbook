@@ -30,6 +30,7 @@ import com.lavy.redbook.framework.common.util.JsonUtils;
 import com.lavy.redbook.note.api.vo.req.DeleteNoteReqVO;
 import com.lavy.redbook.note.api.vo.req.FindNoteDetailReqVO;
 import com.lavy.redbook.note.api.vo.req.PublishNoteReqVO;
+import com.lavy.redbook.note.api.vo.req.TopNoteReqVO;
 import com.lavy.redbook.note.api.vo.req.UpdateNoteReqVO;
 import com.lavy.redbook.note.api.vo.req.UpdateNoteVisibleOnlyMeReqVO;
 import com.lavy.redbook.note.api.vo.resp.FindNoteDetailRspVO;
@@ -387,6 +388,32 @@ public class NoteServiceImpl extends ServiceImpl<NoteDOMapper, NoteDO> implement
         }
         // 删除 Redis 缓存
         this.sendMqMessage(noteId);
+        return Response.success();
+    }
+
+    @Override
+    public Response<?> topNote(TopNoteReqVO topNoteReqVO) {
+        // 笔记 ID
+        Long noteId = topNoteReqVO.getId();
+        // 是否置顶
+        Boolean isTop = topNoteReqVO.getIsTop();
+
+        // 当前登录用户 ID
+        Long currUserId = LoginUserContextHolder.getUserId();
+
+        // 构建置顶/取消置顶 DO 实体类 只有笔记所有者，才能置顶/取消置顶笔记
+        NoteDO noteDO = NoteDO.builder()
+                .id(noteId)
+                .isTop(isTop)
+                .updateTime(LocalDateTime.now())
+                .creatorId(currUserId)
+                .build();
+        if (this.baseMapper.updateIsTop(noteDO) == 0) {
+            throw new BizException(ResponseCodeEnum.NOTE_CANT_OPERATE);
+        }
+        // 删除 Redis 缓存
+        this.sendMqMessage(noteId);
+
         return Response.success();
     }
 

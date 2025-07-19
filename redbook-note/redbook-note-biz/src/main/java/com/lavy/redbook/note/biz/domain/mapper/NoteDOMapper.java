@@ -67,4 +67,11 @@ public interface NoteDOMapper extends BaseMapper<NoteDO> {
      */
     int updateVisibleOnlyMe(NoteDO noteDO);
 
+    /**
+     * 仅对置顶的笔记进行更新
+     *
+     * @param noteDO 笔记DO
+     * @return 置顶结果
+     */
+    int updateIsTop(NoteDO noteDO);
 }

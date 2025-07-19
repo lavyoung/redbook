@@ -11,6 +11,7 @@ import com.lavy.redbook.framework.common.response.Response;
 import com.lavy.redbook.note.api.vo.req.DeleteNoteReqVO;
 import com.lavy.redbook.note.api.vo.req.FindNoteDetailReqVO;
 import com.lavy.redbook.note.api.vo.req.PublishNoteReqVO;
+import com.lavy.redbook.note.api.vo.req.TopNoteReqVO;
 import com.lavy.redbook.note.api.vo.req.UpdateNoteReqVO;
 import com.lavy.redbook.note.api.vo.req.UpdateNoteVisibleOnlyMeReqVO;
 import com.lavy.redbook.note.api.vo.resp.FindNoteDetailRspVO;
@@ -82,10 +83,28 @@ public class NoteController {
         return noteService.deleteNote(deleteNoteReqVO);
     }
 
+    /**
+     * 笔记仅对自己可见
+     *
+     * @param updateNoteVisibleOnlyMeReqVO 笔记仅对自己可见参数
+     * @return 响应结果
+     */
     @PostMapping(value = "/visible/onlyme")
     @ApiOperationLog(description = "笔记仅对自己可见")
     public Response<?> visibleOnlyMe(
             @Validated @RequestBody UpdateNoteVisibleOnlyMeReqVO updateNoteVisibleOnlyMeReqVO) {
         return noteService.visibleOnlyMe(updateNoteVisibleOnlyMeReqVO);
+    }
+
+    /**
+     * 置顶/取消置顶笔记
+     *
+     * @param topNoteReqVO 置顶/取消置顶笔记参数
+     * @return 响应结果
+     */
+    @PostMapping(value = "/top")
+    @ApiOperationLog(description = "置顶/取消置顶笔记")
+    public Response<?> topNote(@Validated @RequestBody TopNoteReqVO topNoteReqVO) {
+        return noteService.topNote(topNoteReqVO);
     }
 }
