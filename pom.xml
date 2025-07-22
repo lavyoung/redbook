@@ -393,4 +393,35 @@
             <url>https://maven.aliyun.com/repository/public</url>
         </repository>
     </repositories>
+
+    <profiles>
+        <profile>
+            <id>oss-upload</id>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>io.github.lavyoung</groupId>
+                            <artifactId>oss-maven-plugin</artifactId>
+                            <version>1.0.1</version>
+                            <configuration>
+                                <accessKeyId>${env.ALIBABA_CLOUD_ACCESS_KEY_ID}</accessKeyId>
+                                <accessKeySecret>${env.ALIBABA_CLOUD_ACCESS_KEY_SECRET}</accessKeySecret>
+                                <endpoint>oss-cn-shanghai.aliyuncs.com</endpoint>
+                            </configuration>
+                            <executions>
+                                <execution>
+                                    <id>oss-maven-plugin</id>
+                                    <phase>package</phase>
+                                    <goals>
+                                        <goal>oss-upload</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+    </profiles>
 </project>

@@ -81,8 +81,19 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>io.github.lavyoung</groupId>
+                <artifactId>oss-maven-plugin</artifactId>
+                <configuration>
+                    <bucketName>redbook-user</bucketName>
+                    <filePath>${project.build.directory}</filePath>
+                    <ossPath>/jar-test</ossPath>
+                    <fileSuffix>.jar</fileSuffix>
+                </configuration>
+            </plugin>
         </plugins>
 
     </build>
+
 
 </project>
