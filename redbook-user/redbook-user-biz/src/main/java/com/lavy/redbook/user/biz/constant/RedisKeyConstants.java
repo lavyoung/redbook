@@ -27,6 +27,11 @@ public class RedisKeyConstants {
     private static final String USER_INFO_KEY_PREFIX = "user:info:";
 
     /**
+     * 粉丝列表 KEY 前缀
+     */
+    private static final String USER_FANS_KEY_PREFIX = "fans:";
+
+    /**
      * 用户对应的角色集合 KEY
      *
      * @param userId 用户ID
@@ -51,5 +56,15 @@ public class RedisKeyConstants {
      */
     public static String buildUserInfoKey(Long userId) {
         return USER_INFO_KEY_PREFIX + userId;
+    }
+
+    /**
+     * 构建粉丝列表完整的 KEY
+     *
+     * @param userId 用户ID
+     * @return 粉丝列表完整的 KEY
+     */
+    public static String buildUserFansKey(Long userId) {
+        return USER_FANS_KEY_PREFIX + userId;
     }
 }

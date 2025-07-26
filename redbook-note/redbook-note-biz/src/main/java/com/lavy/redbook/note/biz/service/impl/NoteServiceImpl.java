@@ -252,6 +252,12 @@ public class NoteServiceImpl extends ServiceImpl<NoteDOMapper, NoteDO> implement
     @Override
     public Response<?> updateNote(UpdateNoteReqVO updateNoteReqVO) {
         Long noteId = updateNoteReqVO.getId();
+        NoteDO noteDB = this.baseMapper.selectByPrimaryKey(noteId);
+        if (Objects.isNull(noteDB)) {
+            throw new BizException(ResponseCodeEnum.NOTE_NOT_FOUND);
+        }
+        Long userId = LoginUserContextHolder.getUserId();
+        checkNoteCreator(noteDB.getCreatorId(), userId);
         // 笔记类型
         Integer type = updateNoteReqVO.getType();
 
@@ -317,6 +323,18 @@ public class NoteServiceImpl extends ServiceImpl<NoteDOMapper, NoteDO> implement
             kvRpcService.deleteNoteContent(contentUuid);
         }
         return Response.success();
+    }
+
+    /**
+     * 检查笔记创建者
+     *
+     * @param creatorId 创建者 ID
+     * @param userId 用户 ID
+     */
+    private void checkNoteCreator(Long creatorId, Long userId) {
+        if (!Objects.equals(creatorId, userId)) {
+            throw new BizException(ResponseCodeEnum.NOTE_CANT_OPERATE);
+        }
     }
 
     /**
