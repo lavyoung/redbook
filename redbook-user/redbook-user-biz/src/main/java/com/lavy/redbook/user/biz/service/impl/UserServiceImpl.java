@@ -184,10 +184,15 @@ public class UserServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implement
         // 否则注册新用户
         // 获取全局自增的小哈书 ID
         String xiaohashuId = distributedIdGeneratorRpcService.getRBSegmentId();
+        log.debug("==> 获取全局自增的小哈书 ID: {}", xiaohashuId);
+        // 用户ID
+        String userSegmentId = distributedIdGeneratorRpcService.getUserSegmentId();
+        log.debug("==> 获取全局自增的用户 ID: {}", userSegmentId);
 
         UserDO userDO = UserDO.builder()
+                .id(Long.valueOf(userSegmentId))
                 .phone(phone)
-                .redbookId(distributedIdGeneratorRpcService.getUserSegmentId())
+                .redbookId(xiaohashuId)
                 .nickname("小红薯" + xiaohashuId)
                 .status(StatusEnum.ENABLED.getValue())
                 .createTime(LocalDateTime.now())

@@ -5,6 +5,7 @@ import org.apache.rocketmq.spring.core.RocketMQListener;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
+import com.lavy.redbook.framework.common.constant.Constants;
 import com.lavy.redbook.note.biz.constant.MQConstants;
 import com.lavy.redbook.note.biz.constant.RedisKeyConstants;
 
@@ -19,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Component
 @Slf4j
-@RocketMQMessageListener(consumerGroup = "redbook-group_"
+@RocketMQMessageListener(consumerGroup = Constants.CONSUMER_GROUP + "_"
         + MQConstants.TOPIC_DELAY_DELETE_NOTE_REDIS_CACHE, topic = MQConstants.TOPIC_DELAY_DELETE_NOTE_REDIS_CACHE)
 public class DelayDeleteNoteRedisCacheConsumer implements RocketMQListener<String> {
 

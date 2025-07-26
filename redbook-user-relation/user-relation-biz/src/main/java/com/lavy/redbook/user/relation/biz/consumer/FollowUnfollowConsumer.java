@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.google.common.util.concurrent.RateLimiter;
+import com.lavy.redbook.framework.common.constant.Constants;
 import com.lavy.redbook.framework.common.util.JsonUtils;
 import com.lavy.redbook.user.relation.api.req.dto.FollowUserMqDTO;
 import com.lavy.redbook.user.relation.biz.constant.MQConstants;
@@ -28,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
  * @description: 笔记服务消费者
  */
 @Component
-@RocketMQMessageListener(consumerGroup = "redbook_group",
+@RocketMQMessageListener(consumerGroup = Constants.CONSUMER_GROUP,
         topic = MQConstants.TOPIC_FOLLOW_OR_UNFOLLOW
 )
 @Slf4j

@@ -14,13 +14,21 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum LuaResultEnum {
-    // ZSET 不存在
+    /**
+     * 关注用户存在
+     */
     ZSET_NOT_EXIST(-1L),
-    // 关注已达到上限
+    /**
+     * 关注用户已满
+     */
     FOLLOW_LIMIT(-2L),
-    // 已经关注了该用户
+    /**
+     * 已关注
+     */
     ALREADY_FOLLOWED(-3L),
-    // 关注成功
+    /**
+     * 关注成功
+     */
     FOLLOW_SUCCESS(0L),
     ;
 

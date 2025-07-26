@@ -106,7 +106,8 @@ public class RelationServiceImpl implements RelationService {
         LuaResultEnum luaResultEnum = LuaResultEnum.valueOf(result);
 
         if (Objects.isNull(luaResultEnum)) {
-            throw new RuntimeException("Lua 返回结果错误");
+            log.error("## Lua 脚本执行结果异常，请检查 Lua 脚本");
+            throw new BizException(ResponseCodeEnum.SYSTEM_ERROR);
         }
 
         // 判断返回结果
@@ -201,19 +202,25 @@ public class RelationServiceImpl implements RelationService {
 
     /**
      * 构建 Lua 脚本参数
+     *
+     * @param followingDOS 关注关系列表
+     * @param expireSeconds 过期时间
      */
     private static Object[] buildLuaArgs(List<FollowingDO> followingDOS, long expireSeconds) {
-        int argsLength = followingDOS.size() * 2 + 1; // 每个关注关系有 2 个参数（score 和 value），再加一个过期时间
+        // 每个关注关系有 2 个参数（score 和 value），再加一个过期时间
+        int argsLength = followingDOS.size() * 2 + 1;
         Object[] luaArgs = new Object[argsLength];
 
         int i = 0;
         for (FollowingDO following : followingDOS) {
-            luaArgs[i] = DateUtils.localDateTime2Timestamp(following.getCreateTime()); // 关注时间作为 score
-            luaArgs[i + 1] = following.getFollowingUserId();          // 关注的用户 ID 作为 ZSet value
+            // 关注时间作为 score
+            luaArgs[i] = DateUtils.localDateTime2Timestamp(following.getCreateTime());
+            // 关注的用户 ID 作为 ZSet value
+            luaArgs[i + 1] = following.getFollowingUserId();
             i += 2;
         }
-
-        luaArgs[argsLength - 1] = expireSeconds; // 最后一个参数是 ZSet 的过期时间
+        // 最后一个参数是 ZSet 的过期时间
+        luaArgs[argsLength - 1] = expireSeconds;
         return luaArgs;
     }
 }

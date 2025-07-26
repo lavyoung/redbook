@@ -5,6 +5,7 @@ import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;
 import org.apache.rocketmq.spring.core.RocketMQListener;
 import org.springframework.stereotype.Component;
 
+import com.lavy.redbook.framework.common.constant.Constants;
 import com.lavy.redbook.note.biz.constant.MQConstants;
 import com.lavy.redbook.note.biz.service.NoteService;
 
@@ -19,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Component
 @Slf4j
-@RocketMQMessageListener(consumerGroup = "redbook-group",
+@RocketMQMessageListener(consumerGroup = Constants.CONSUMER_GROUP,
         topic = MQConstants.TOPIC_DELETE_NOTE_LOCAL_CACHE,
         messageModel = MessageModel.BROADCASTING)
 public class DeleteNoteLocalCacheConsumer implements RocketMQListener<String> {
