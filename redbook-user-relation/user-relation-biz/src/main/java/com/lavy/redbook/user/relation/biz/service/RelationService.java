@@ -2,6 +2,7 @@ package com.lavy.redbook.user.relation.biz.service;
 
 import com.lavy.redbook.framework.common.response.Response;
 import com.lavy.redbook.user.relation.api.req.vo.FollowUserReqVO;
+import com.lavy.redbook.user.relation.api.req.vo.UnfollowUserReqVO;
 
 /**
  * @author <a href="lavyoung1325@outlook.com">lavy</a>
@@ -18,4 +19,12 @@ public interface RelationService {
      * @return 响应
      */
     Response<?> follow(FollowUserReqVO followUserReqVO);
+
+    /**
+     * 取关用户
+     *
+     * @param unfollowUserReqVO 取关用户请求参数
+     * @return 响应
+     */
+    Response<?> unfollow(UnfollowUserReqVO unfollowUserReqVO);
 }

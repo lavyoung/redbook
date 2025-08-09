@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -46,7 +47,6 @@ import com.lavy.redbook.user.biz.rpc.DistributedIdGeneratorRpcService;
 import com.lavy.redbook.user.biz.rpc.OssRpcService;
 import com.lavy.redbook.user.biz.service.UserService;
 
-import cn.hutool.core.util.RandomUtil;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
@@ -317,7 +317,7 @@ public class UserServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implement
                     .avatar(userDO.getAvatar())
                     .build();
             taskExecutor.execute(() -> {
-                long expireSecond = 60L * 60 * 24 + RandomUtil.randomInt(60 * 60 * 24);
+                long expireSecond = 60L * 60 * 24 + RandomUtils.nextInt(0, 60 * 60 * 24);
                 redisTemplate.opsForValue()
                         .set(userInfoKey, JsonUtils.toJsonString(rspDTO), expireSecond, TimeUnit.SECONDS);
             });

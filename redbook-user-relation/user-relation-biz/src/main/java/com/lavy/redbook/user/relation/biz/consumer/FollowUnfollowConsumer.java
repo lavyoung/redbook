@@ -90,6 +90,9 @@ public class FollowUnfollowConsumer implements RocketMQListener<Message> {
             return;
         }
 
+        if (bodyJsonStr != null) {
+            return;
+        }
         // 幂等性：通过联合唯一索引保证
 
         Long userId = followUserMqDTO.getUserId();

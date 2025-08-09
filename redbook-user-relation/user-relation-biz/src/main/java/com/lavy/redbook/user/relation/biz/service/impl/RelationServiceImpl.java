@@ -15,15 +15,18 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.scripting.support.ResourceScriptSource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import com.lavy.redbook.framework.biz.context.holder.LoginUserContextHolder;
 import com.lavy.redbook.framework.common.exception.BizException;
 import com.lavy.redbook.framework.common.response.Response;
 import com.lavy.redbook.framework.common.util.DateUtils;
 import com.lavy.redbook.framework.common.util.JsonUtils;
+import com.lavy.redbook.framework.common.util.RandomUtils;
 import com.lavy.redbook.user.api.dto.resp.FindUserByIdRspDTO;
 import com.lavy.redbook.user.relation.api.req.dto.FollowUserMqDTO;
 import com.lavy.redbook.user.relation.api.req.vo.FollowUserReqVO;
+import com.lavy.redbook.user.relation.api.req.vo.UnfollowUserReqVO;
 import com.lavy.redbook.user.relation.biz.constant.MQConstants;
 import com.lavy.redbook.user.relation.biz.constant.RedisKeyConstants;
 import com.lavy.redbook.user.relation.biz.domain.dataobject.FollowingDO;
@@ -33,8 +36,6 @@ import com.lavy.redbook.user.relation.biz.rpc.UserRpcService;
 import com.lavy.redbook.user.relation.biz.service.FollowingService;
 import com.lavy.redbook.user.relation.biz.service.RelationService;
 
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.RandomUtil;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
@@ -121,9 +122,9 @@ public class RelationServiceImpl implements RelationService {
                 List<FollowingDO> followingDOS = followingService.selectByUserId(userId);
                 // 随机过期时间
                 // 保底1天+随机秒数
-                long expireSeconds = 60 * 60 * 24 + RandomUtil.randomInt(60 * 60 * 24);
+                long expireSeconds = 60 * 60 * 24 + RandomUtils.randomNumber(60 * 60 * 24);
                 // 若记录为空，直接 ZADD 关系数据, 并设置过期时间
-                if (CollUtil.isEmpty(followingDOS)) {
+                if (CollectionUtils.isEmpty(followingDOS)) {
                     DefaultRedisScript<Long> script2 = new DefaultRedisScript<>();
                     script2.setScriptSource(
                             new ResourceScriptSource(new ClassPathResource("/lua/follow_add_and_expire.lua")));
@@ -180,6 +181,11 @@ public class RelationServiceImpl implements RelationService {
             }
         });
         return Response.success();
+    }
+
+    @Override
+    public Response<?> unfollow(UnfollowUserReqVO unfollowUserReqVO) {
+        return null;
     }
 
     /**

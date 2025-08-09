@@ -3,6 +3,7 @@ package com.lavy.redbook.note.biz.service.impl;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -51,7 +52,6 @@ import com.lavy.redbook.note.biz.service.NoteService;
 import com.lavy.redbook.note.biz.service.TopicService;
 import com.lavy.redbook.user.api.dto.resp.FindUserByIdRspDTO;
 
-import cn.hutool.core.util.RandomUtil;
 import jakarta.annotation.Resource;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -197,7 +197,7 @@ public class NoteServiceImpl extends ServiceImpl<NoteDOMapper, NoteDO> implement
             threadPoolTaskExecutor.execute(() -> {
                 // 防止缓存穿透，将空数据存入 Redis 缓存 (过期时间不宜设置过长)
                 // 保底1分钟 + 随机秒数
-                long expireSeconds = 60 + RandomUtil.randomInt(60);
+                long expireSeconds = 60 + new Random().nextInt(60);
                 redisTemplate.opsForValue().set(noteDetailRedisKey, "null", expireSeconds, TimeUnit.SECONDS);
             });
             throw new BizException(ResponseCodeEnum.NOTE_NOT_FOUND);
@@ -243,7 +243,7 @@ public class NoteServiceImpl extends ServiceImpl<NoteDOMapper, NoteDO> implement
         threadPoolTaskExecutor.submit(() -> {
             String noteDetailJson1 = JsonUtils.toJsonString(findNoteDetailRspVO);
             // 过期时间（保底1天 + 随机秒数，将缓存过期时间打散，防止同一时间大量缓存失效，导致数据库压力太大）
-            long expireSeconds = 60 * 60 * 24 + RandomUtil.randomInt(60 * 60 * 24);
+            long expireSeconds = 60 * 60 * 24 + new Random().nextInt(60 * 60 * 24);
             redisTemplate.opsForValue().set(noteDetailRedisKey, noteDetailJson1, expireSeconds, TimeUnit.SECONDS);
         });
         return Response.success(findNoteDetailRspVO);
