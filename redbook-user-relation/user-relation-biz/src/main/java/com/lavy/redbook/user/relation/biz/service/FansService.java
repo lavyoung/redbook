@@ -1,5 +1,7 @@
 package com.lavy.redbook.user.relation.biz.service;
 
+import java.util.List;
+
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lavy.redbook.user.relation.biz.domain.dataobject.FansDO;
 
@@ -10,4 +12,12 @@ import com.lavy.redbook.user.relation.biz.domain.dataobject.FansDO;
  * @description: 粉丝服务
  */
 public interface FansService extends IService<FansDO> {
+
+    /**
+     * 获取粉丝列表
+     *
+     * @param userId 用户ID
+     * @return 粉丝列表
+     */
+    List<FansDO> getFans(Long userId);
 }

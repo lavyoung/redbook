@@ -29,10 +29,12 @@ import com.lavy.redbook.user.relation.api.req.vo.FollowUserReqVO;
 import com.lavy.redbook.user.relation.api.req.vo.UnfollowUserReqVO;
 import com.lavy.redbook.user.relation.biz.constant.MQConstants;
 import com.lavy.redbook.user.relation.biz.constant.RedisKeyConstants;
+import com.lavy.redbook.user.relation.biz.domain.dataobject.FansDO;
 import com.lavy.redbook.user.relation.biz.domain.dataobject.FollowingDO;
 import com.lavy.redbook.user.relation.biz.enums.LuaResultEnum;
 import com.lavy.redbook.user.relation.biz.enums.ResponseCodeEnum;
 import com.lavy.redbook.user.relation.biz.rpc.UserRpcService;
+import com.lavy.redbook.user.relation.biz.service.FansService;
 import com.lavy.redbook.user.relation.biz.service.FollowingService;
 import com.lavy.redbook.user.relation.biz.service.RelationService;
 
@@ -58,6 +60,8 @@ public class RelationServiceImpl implements RelationService {
     private FollowingService followingService;
     @Resource
     private RocketMQTemplate rocketMQTemplate;
+    @Resource
+    private FansService fansService;
 
     /**
      * 关注用户
@@ -186,6 +190,16 @@ public class RelationServiceImpl implements RelationService {
     @Override
     public Response<?> unfollow(UnfollowUserReqVO unfollowUserReqVO) {
         return null;
+    }
+
+    @Override
+    public Response<?> getFans() {
+        Long userId = LoginUserContextHolder.getUserId();
+        if (userId == null || userId == 0) {
+            throw new BizException(ResponseCodeEnum.LOGIN_NOT_VALID);
+        }
+        List<FansDO> fansDOS = fansService.getFans(userId);
+        return Response.success(fansDOS);
     }
 
     /**

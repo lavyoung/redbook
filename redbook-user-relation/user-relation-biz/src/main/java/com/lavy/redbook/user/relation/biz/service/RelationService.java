@@ -27,4 +27,11 @@ public interface RelationService {
      * @return 响应
      */
     Response<?> unfollow(UnfollowUserReqVO unfollowUserReqVO);
+
+    /**
+     * 获取粉丝
+     *
+     * @return 响应
+     */
+    Response<?> getFans();
 }
