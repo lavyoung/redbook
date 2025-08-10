@@ -21,6 +21,8 @@ public enum ResponseCodeEnum implements BaseExceptionInterface {
     ALREADY_FOLLOWED("RELATION-20004", "您已经关注了该用户"),
     CANT_UNFOLLOW_YOUR_SELF("RELATION-20005", "无法操作自己"),
     NOT_FOLLOWED("RELATION-20006", "您未关注对方，无法取关"),
+    UNFOLLOW_SELF("RELATION-20007", "无法取关自己"),
+    UNFOLLOW_USER_NOT_EXISTED("RELATION-20008", "取关的用户不存在"),
     ;
 
     private final String errorCode;

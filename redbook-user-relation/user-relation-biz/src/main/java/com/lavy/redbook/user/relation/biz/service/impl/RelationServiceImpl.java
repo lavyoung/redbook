@@ -25,6 +25,7 @@ import com.lavy.redbook.framework.common.util.JsonUtils;
 import com.lavy.redbook.framework.common.util.RandomUtils;
 import com.lavy.redbook.user.api.dto.resp.FindUserByIdRspDTO;
 import com.lavy.redbook.user.relation.api.req.dto.FollowUserMqDTO;
+import com.lavy.redbook.user.relation.api.req.dto.UnfollowUserMqDTO;
 import com.lavy.redbook.user.relation.api.req.vo.FollowUserReqVO;
 import com.lavy.redbook.user.relation.api.req.vo.UnfollowUserReqVO;
 import com.lavy.redbook.user.relation.biz.constant.MQConstants;
@@ -190,7 +191,46 @@ public class RelationServiceImpl implements RelationService {
 
     @Override
     public Response<?> unfollow(UnfollowUserReqVO unfollowUserReqVO) {
-        return null;
+        Long userId = LoginUserContextHolder.getUserId();
+        if (userId == null) {
+            return Response.fail(ResponseCodeEnum.LOGIN_NOT_VALID);
+        }
+        if (Objects.equals(userId, unfollowUserReqVO.getUnfollowUserId())) {
+            return Response.fail(ResponseCodeEnum.UNFOLLOW_SELF);
+        }
+        FindUserByIdRspDTO unfollowUser = userRpcService.findById(unfollowUserReqVO.getUnfollowUserId());
+        if (Objects.isNull(unfollowUser)) {
+            return Response.fail(ResponseCodeEnum.UNFOLLOW_USER_NOT_EXISTED);
+        }
+        String followingKey = RedisKeyConstants.buildUserFollowingKey(userId);
+        Double score = redisTemplate.opsForZSet().score(followingKey, unfollowUserReqVO.getUnfollowUserId());
+        // todo 有可能未缓存
+        if (Objects.isNull(score)) {
+            return Response.fail(ResponseCodeEnum.NOT_FOLLOWED);
+        }
+        redisTemplate.opsForZSet().remove(followingKey, unfollowUserReqVO.getUnfollowUserId());
+
+        // 发送 MQ 消息
+        UnfollowUserMqDTO unfollowUserMqDTO = UnfollowUserMqDTO.builder()
+                .userId(userId)
+                .unfollowUserId(unfollowUserReqVO.getUnfollowUserId())
+                .createTime(LocalDateTime.now())
+                .build();
+
+        Message<String> message = MessageBuilder.withPayload(JsonUtils.toJsonString(unfollowUserMqDTO)).build();
+        String dest = MQConstants.TOPIC_FOLLOW_OR_UNFOLLOW + ":" + MQConstants.TAG_UNFOLLOW;
+        rocketMQTemplate.asyncSend(dest, message, new SendCallback() {
+            @Override
+            public void onSuccess(SendResult sendResult) {
+                log.info("==> MQ 发送成功, {}", unfollowUserMqDTO);
+            }
+
+            @Override
+            public void onException(Throwable e) {
+                log.error("==> MQ 发送失败：{}", unfollowUserMqDTO, e);
+            }
+        });
+        return Response.success();
     }
 
     @Override

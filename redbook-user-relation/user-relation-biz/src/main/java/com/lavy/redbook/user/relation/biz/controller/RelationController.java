@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.lavy.redbook.framework.biz.operationlog.aspect.ApiOperationLog;
 import com.lavy.redbook.framework.common.response.Response;
 import com.lavy.redbook.user.relation.api.req.vo.FollowUserReqVO;
+import com.lavy.redbook.user.relation.api.req.vo.UnfollowUserReqVO;
 import com.lavy.redbook.user.relation.biz.service.RelationService;
 
 import jakarta.annotation.Resource;
@@ -27,13 +28,36 @@ public class RelationController {
     @Resource
     private RelationService relationService;
 
+    /**
+     * 关注用户
+     *
+     * @param followUserReqVO 关注用户请求参数
+     * @return 响应结果
+     */
     @PostMapping("/follow")
     @ApiOperationLog(description = "关注用户")
     public Response<?> follow(@Validated @RequestBody FollowUserReqVO followUserReqVO) {
         return relationService.follow(followUserReqVO);
     }
 
+    /**
+     * 取关用户
+     *
+     * @param unfollowUserReqVO 取关用户请求参数
+     * @return 响应结果
+     */
+    @PostMapping("/unfollow")
+    @ApiOperationLog(description = "取关用户")
+    public Response<?> unfollow(@Validated @RequestBody UnfollowUserReqVO unfollowUserReqVO) {
+        return relationService.unfollow(unfollowUserReqVO);
+    }
 
+
+    /**
+     * 用户粉丝
+     *
+     * @return 响应结果
+     */
     @GetMapping("/fans")
     @ApiOperationLog(description = "用户粉丝")
     public Response<?> getFans() {
