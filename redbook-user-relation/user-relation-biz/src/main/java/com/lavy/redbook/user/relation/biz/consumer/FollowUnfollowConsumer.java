@@ -36,7 +36,8 @@ import lombok.extern.slf4j.Slf4j;
  * @description: 笔记服务消费者
  */
 @Component
-@RocketMQMessageListener(consumerGroup = Constants.CONSUMER_GROUP,
+@RocketMQMessageListener(consumerGroup = Constants.CONSUMER_GROUP_CLUSTERING + "_"
+        + MQConstants.TOPIC_FOLLOW_OR_UNFOLLOW,
         topic = MQConstants.TOPIC_FOLLOW_OR_UNFOLLOW
 )
 @Slf4j
@@ -89,12 +90,7 @@ public class FollowUnfollowConsumer implements RocketMQListener<Message> {
         if (Objects.isNull(followUserMqDTO)) {
             return;
         }
-
-        if (bodyJsonStr != null) {
-            return;
-        }
         // 幂等性：通过联合唯一索引保证
-
         Long userId = followUserMqDTO.getUserId();
         Long followUserId = followUserMqDTO.getFollowUserId();
         LocalDateTime createTime = followUserMqDTO.getCreateTime();
@@ -115,9 +111,9 @@ public class FollowUnfollowConsumer implements RocketMQListener<Message> {
                         .createTime(createTime)
                         .build());
             }
-            return true;
+            return count;
         });
-        // 执行Redis 命令
+        // 执行Redis 命令 如果粉丝列表存在缓存且未添加则添加
         DefaultRedisScript<Long> script = new DefaultRedisScript<>();
         script.setScriptSource(
                 new ResourceScriptSource(new ClassPathResource("/lua/follow_check_and_update_fans_zset.lua")));

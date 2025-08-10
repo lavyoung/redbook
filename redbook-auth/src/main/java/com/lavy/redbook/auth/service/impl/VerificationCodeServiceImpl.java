@@ -1,6 +1,5 @@
 package com.lavy.redbook.auth.service.impl;
 
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +15,7 @@ import com.lavy.redbook.auth.service.VerificationCodeService;
 import com.lavy.redbook.auth.third.sms.AliyunSmsHelper;
 import com.lavy.redbook.framework.common.exception.BizException;
 import com.lavy.redbook.framework.common.response.Response;
+import com.lavy.redbook.framework.common.util.RandomUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -56,24 +56,11 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
             throw new BizException(ResponseCodeEnum.VERIFICATION_CODE_SEND_FREQUENTLY);
         }
         // 生成验证码 s
-        Random random = new Random();
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < 6; i++) {
-            stringBuilder.append(random.nextInt(10));
-        }
-        log.info("验证码：{}", stringBuilder);
-        //        threadPoolExecutor.execute(() -> aliyunSmsHelper.sendSms(phone, numbers));
+        String code = RandomUtils.numberGenerator(6);
+        log.info("验证码：{}", code);
+        //    todo 暂时注释   threadPoolExecutor.execute(() -> aliyunSmsHelper.sendSms(phone, numbers));
         // 缓存验证码
-        redisTemplate.opsForValue().set(key, stringBuilder.toString(), 15, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(key, code, 15, TimeUnit.MINUTES);
         return Response.success();
-    }
-
-    public static void main(String[] args) {
-        Random random = new Random();
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < 6; i++) {
-            stringBuilder.append(random.nextInt(10));
-        }
-        System.out.println(stringBuilder);
     }
 }

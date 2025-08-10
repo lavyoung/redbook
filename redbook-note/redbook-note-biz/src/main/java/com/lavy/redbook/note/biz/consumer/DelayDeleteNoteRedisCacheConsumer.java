@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Component
 @Slf4j
-@RocketMQMessageListener(consumerGroup = Constants.CONSUMER_GROUP + "_"
+@RocketMQMessageListener(consumerGroup = Constants.CONSUMER_GROUP_CLUSTERING + "_"
         + MQConstants.TOPIC_DELAY_DELETE_NOTE_REDIS_CACHE, topic = MQConstants.TOPIC_DELAY_DELETE_NOTE_REDIS_CACHE)
 public class DelayDeleteNoteRedisCacheConsumer implements RocketMQListener<String> {
 
@@ -31,7 +31,7 @@ public class DelayDeleteNoteRedisCacheConsumer implements RocketMQListener<Strin
     @Override
     public void onMessage(String body) {
         Long noteId = Long.valueOf(body);
-        log.info("==> 延迟消息消费成功, 删除Redis缓存 noteId: {}", noteId);
+        log.info("==> 延迟消息消费成功, 删除Redis缓存, topic: DelayDeleteNoteRedisCacheTopic, noteId: {}", noteId);
         // 删除 Redis 笔记缓存
         String noteDetailRedisKey = RedisKeyConstants.buildNoteDetailKey(noteId);
         redisTemplate.delete(noteDetailRedisKey);

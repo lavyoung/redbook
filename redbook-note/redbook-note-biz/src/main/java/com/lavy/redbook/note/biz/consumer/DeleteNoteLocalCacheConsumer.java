@@ -20,7 +20,8 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Component
 @Slf4j
-@RocketMQMessageListener(consumerGroup = Constants.CONSUMER_GROUP,
+@RocketMQMessageListener(consumerGroup = Constants.CONSUMER_GROUP_BROADCASTING + "_"
+        + MQConstants.TOPIC_DELETE_NOTE_LOCAL_CACHE,
         topic = MQConstants.TOPIC_DELETE_NOTE_LOCAL_CACHE,
         messageModel = MessageModel.BROADCASTING)
 public class DeleteNoteLocalCacheConsumer implements RocketMQListener<String> {
@@ -31,7 +32,7 @@ public class DeleteNoteLocalCacheConsumer implements RocketMQListener<String> {
     @Override
     public void onMessage(String msg) {
         Long noteId = Long.valueOf(msg);
-        log.info("## 消费者消费成功, noteId: {}", noteId);
+        log.info("## 消费者消费成功, topic: DeleteNoteLocalCacheTopic, noteId: {}", noteId);
         noteService.deleteNoteLocalCache(noteId);
     }
 }

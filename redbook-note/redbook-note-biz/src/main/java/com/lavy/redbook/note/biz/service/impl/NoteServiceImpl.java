@@ -231,9 +231,13 @@ public class NoteServiceImpl extends ServiceImpl<NoteDOMapper, NoteDO> implement
                         imgUris = List.of(noteDO.getImgUris().split(","));
                     }
                     return FindNoteDetailRspVO.builder().id(noteDO.getId()).type(noteDO.getType().getCode())
-                            .title(noteDO.getTitle()).content(content).imgUris(imgUris).topicId(noteDO.getTopicId())
-                            .topicName(noteDO.getTopicName()).creatorId(noteDO.getCreatorId())
-                            .creatorName(creatorUser.getNickName()).avatar(creatorUser.getAvatar())
+                            .title(noteDO.getTitle()).content(content)
+                            .imgUris(imgUris)
+                            .topicId(noteDO.getTopicId())
+                            .topicName(noteDO.getTopicName())
+                            .creatorId(noteDO.getCreatorId())
+                            .creatorName(creatorUser.getNickName())
+                            .avatar(creatorUser.getAvatar())
                             .videoUri(noteDO.getVideoUri()).updateTime(noteDO.getUpdateTime())
                             .visible(noteDO.getVisible().getCode()).build();
                 });

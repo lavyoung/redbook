@@ -151,6 +151,7 @@ public class RelationServiceImpl implements RelationService {
                     // 再次调用上面的 Lua 脚本：follow_check_and_add.lua , 将最新的关注关系添加进去
                     result = redisTemplate.execute(script, Collections.singletonList(followingRedisKey), followUserId,
                             timestamp);
+                    // check Lua 脚本执行结果
                     checkLuaScriptResult(result);
                 }
             }
