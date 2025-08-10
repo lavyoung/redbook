@@ -402,7 +402,7 @@
                         <plugin>
                             <groupId>io.github.lavyoung</groupId>
                             <artifactId>oss-maven-plugin</artifactId>
-                            <version>1.0.1</version>
+                            <version>1.0.2</version>
                             <configuration>
                                 <accessKeyId>${env.ALIBABA_CLOUD_ACCESS_KEY_ID}</accessKeyId>
                                 <accessKeySecret>${env.ALIBABA_CLOUD_ACCESS_KEY_SECRET}</accessKeySecret>
