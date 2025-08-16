@@ -175,7 +175,7 @@ public class RelationServiceImpl implements RelationService {
         log.info("==> 开始发送关注操作 MQ, 消息体: {}", followUserMqDTO);
 
         // 异步发送 MQ 消息，提升接口响应速度
-        rocketMQTemplate.asyncSend(destination, message, new SendCallback() {
+        rocketMQTemplate.asyncSendOrderly(destination, message, String.valueOf(userId), new SendCallback() {
             @Override
             public void onSuccess(SendResult sendResult) {
                 log.info("==> MQ 发送成功，SendResult: {}", sendResult);
@@ -248,7 +248,7 @@ public class RelationServiceImpl implements RelationService {
 
         Message<String> message = MessageBuilder.withPayload(JsonUtils.toJsonString(unfollowUserMqDTO)).build();
         String dest = MQConstants.TOPIC_FOLLOW_OR_UNFOLLOW + ":" + MQConstants.TAG_UNFOLLOW;
-        rocketMQTemplate.asyncSend(dest, message, new SendCallback() {
+        rocketMQTemplate.asyncSendOrderly(dest, message, String.valueOf(userId), new SendCallback() {
             @Override
             public void onSuccess(SendResult sendResult) {
                 log.info("==> MQ 发送成功, {}", unfollowUserMqDTO);

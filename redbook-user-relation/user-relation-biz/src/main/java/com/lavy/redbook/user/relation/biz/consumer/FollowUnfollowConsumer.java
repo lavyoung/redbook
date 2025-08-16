@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Objects;
 
 import org.apache.rocketmq.common.message.Message;
+import org.apache.rocketmq.spring.annotation.ConsumeMode;
 import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;
 import org.apache.rocketmq.spring.core.RocketMQListener;
 import org.springframework.core.io.ClassPathResource;
@@ -39,7 +40,8 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @RocketMQMessageListener(consumerGroup = Constants.CONSUMER_GROUP_CLUSTERING + "_"
         + MQConstants.TOPIC_FOLLOW_OR_UNFOLLOW,
-        topic = MQConstants.TOPIC_FOLLOW_OR_UNFOLLOW
+        topic = MQConstants.TOPIC_FOLLOW_OR_UNFOLLOW,
+        consumeMode = ConsumeMode.ORDERLY
 )
 @Slf4j
 public class FollowUnfollowConsumer implements RocketMQListener<Message> {
