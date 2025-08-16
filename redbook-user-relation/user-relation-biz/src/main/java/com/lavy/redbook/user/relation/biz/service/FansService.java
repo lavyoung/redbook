@@ -20,4 +20,13 @@ public interface FansService extends IService<FansDO> {
      * @return 粉丝列表
      */
     List<FansDO> getFans(Long userId);
+
+    /**
+     * 删除粉丝
+     *
+     * @param userId 用户ID
+     * @param fansId 粉丝ID
+     * @return 删除结果
+     */
+    int deleteFans(Long userId, Long fansId);
 }

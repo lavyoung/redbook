@@ -20,4 +20,13 @@ public interface FollowingService extends IService<FollowingDO> {
      * @return 用户所关注的用户列表
      */
     List<FollowingDO> selectByUserId(Long userId);
+
+    /**
+     * 删除用户所关注的用户
+     *
+     * @param userId 用户 ID
+     * @param followingId 关注的用户 ID
+     * @return 删除结果
+     */
+    int deleteFollowing(Long userId, Long followingId);
 }

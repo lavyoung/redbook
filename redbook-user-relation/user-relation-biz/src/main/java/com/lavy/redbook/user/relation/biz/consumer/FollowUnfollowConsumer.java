@@ -18,12 +18,13 @@ import com.lavy.redbook.framework.common.constant.Constants;
 import com.lavy.redbook.framework.common.util.DateUtils;
 import com.lavy.redbook.framework.common.util.JsonUtils;
 import com.lavy.redbook.user.relation.api.req.dto.FollowUserMqDTO;
+import com.lavy.redbook.user.relation.api.req.dto.UnfollowUserMqDTO;
 import com.lavy.redbook.user.relation.biz.constant.MQConstants;
 import com.lavy.redbook.user.relation.biz.constant.RedisKeyConstants;
 import com.lavy.redbook.user.relation.biz.domain.dataobject.FansDO;
 import com.lavy.redbook.user.relation.biz.domain.dataobject.FollowingDO;
-import com.lavy.redbook.user.relation.biz.domain.mapper.FansDOMapper;
-import com.lavy.redbook.user.relation.biz.domain.mapper.FollowingDOMapper;
+import com.lavy.redbook.user.relation.biz.service.FansService;
+import com.lavy.redbook.user.relation.biz.service.FollowingService;
 import com.lavy.redbook.user.relation.biz.template.TransactionContextHolder;
 
 import jakarta.annotation.Resource;
@@ -44,9 +45,9 @@ import lombok.extern.slf4j.Slf4j;
 public class FollowUnfollowConsumer implements RocketMQListener<Message> {
 
     @Resource
-    private FollowingDOMapper followingDOMapper;
+    private FollowingService followingService;
     @Resource
-    private FansDOMapper fansDOMapper;
+    private FansService fansService;
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
     // 每秒创建 5000 个令牌
@@ -71,7 +72,7 @@ public class FollowUnfollowConsumer implements RocketMQListener<Message> {
                 handleFollowTagMessage(bodyJsonStr);
                 break;
             case MQConstants.TAG_UNFOLLOW:
-                // TODO 取消关注
+                handleUnfollowTagMessage(bodyJsonStr);
                 break;
         }
     }
@@ -96,33 +97,65 @@ public class FollowUnfollowConsumer implements RocketMQListener<Message> {
         LocalDateTime createTime = followUserMqDTO.getCreateTime();
 
         // 插入数据
-        transactionContextHolder.executeTransaction(() -> {
-            int count = followingDOMapper.insert(FollowingDO.builder()
+        Boolean isSuccess = transactionContextHolder.executeTransaction(() -> {
+            boolean success = followingService.save(FollowingDO.builder()
                     .userId(userId)
                     .followingUserId(followUserId)
                     .createTime(createTime)
                     .build());
 
             // 粉丝表：一条记录
-            if (count > 0) {
-                fansDOMapper.insert(FansDO.builder()
+            if (success) {
+                fansService.save(FansDO.builder()
                         .userId(followUserId)
                         .fansUserId(userId)
                         .createTime(createTime)
                         .build());
             }
-            return count;
+            return success;
         });
-        // 执行Redis 命令 如果粉丝列表存在缓存且未添加则添加
-        DefaultRedisScript<Long> script = new DefaultRedisScript<>();
-        script.setScriptSource(
-                new ResourceScriptSource(new ClassPathResource("/lua/follow_check_and_update_fans_zset.lua")));
-        script.setResultType(Long.class);
+        if (Boolean.TRUE.equals(isSuccess)) {
+            // 执行Redis 命令 如果粉丝列表存在缓存且未添加则添加
+            DefaultRedisScript<Long> script = new DefaultRedisScript<>();
+            script.setScriptSource(
+                    new ResourceScriptSource(new ClassPathResource("/lua/follow_check_and_update_fans_zset.lua")));
+            script.setResultType(Long.class);
 
-        long timestamp = DateUtils.localDateTime2Timestamp(createTime);
-        // 构建被关注用户的粉丝列表
-        String key = RedisKeyConstants.buildUserFansKey(followUserId);
-        redisTemplate.execute(script, Collections.singletonList(key), userId, timestamp);
-
+            long timestamp = DateUtils.localDateTime2Timestamp(createTime);
+            // 构建被关注用户的粉丝列表
+            String key = RedisKeyConstants.buildUserFansKey(followUserId);
+            redisTemplate.execute(script, Collections.singletonList(key), userId, timestamp);
+        }
     }
+
+    /**
+     * 取关
+     *
+     * @param bodyJsonStr 消息内容
+     */
+    private void handleUnfollowTagMessage(String bodyJsonStr) {
+        // 转换对象
+        UnfollowUserMqDTO unfollowUserMqDTO = JsonUtils.parseObject(bodyJsonStr, UnfollowUserMqDTO.class);
+        // 判空
+        if (Objects.isNull(unfollowUserMqDTO)) {
+            return;
+        }
+        Long userId = unfollowUserMqDTO.getUserId();
+        Long unfollowUserId = unfollowUserMqDTO.getUnfollowUserId();
+        // 编程式提交事务
+        Boolean isSuccess = transactionContextHolder.executeTransaction(() -> {
+            int c = followingService.deleteFollowing(userId, unfollowUserId);
+            if (c > 0) {
+                fansService.deleteFans(unfollowUserId, userId);
+            }
+            return c > 0;
+        }, "删除粉丝数据");
+
+        // 若数据库删除成功，更新 Redis，将自己从被取关用户的 ZSet 粉丝列表删除
+        if (Boolean.TRUE.equals(isSuccess)) {
+            String userFansKey = RedisKeyConstants.buildUserFansKey(unfollowUserId);
+            redisTemplate.opsForZSet().remove(userFansKey, userId);
+        }
+    }
+
 }

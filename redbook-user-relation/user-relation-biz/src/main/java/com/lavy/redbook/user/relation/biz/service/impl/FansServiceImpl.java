@@ -31,4 +31,14 @@ public class FansServiceImpl extends ServiceImpl<FansDOMapper, FansDO> implement
         return this.baseMapper.selectList(Wrappers.lambdaQuery(FansDO.class)
                 .eq(FansDO::getUserId, userId));
     }
+
+    @Override
+    public int deleteFans(Long userId, Long fansId) {
+        if (userId == null || fansId == null) {
+            log.warn("invalid params: userId:{} or fansId:{} is null", userId, fansId);
+            return 0;
+        }
+        return this.baseMapper.delete(
+                Wrappers.lambdaQuery(FansDO.class).eq(FansDO::getUserId, userId).eq(FansDO::getFansUserId, fansId));
+    }
 }

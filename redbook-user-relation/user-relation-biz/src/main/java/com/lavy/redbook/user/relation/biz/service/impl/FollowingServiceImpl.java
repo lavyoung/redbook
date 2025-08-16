@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lavy.redbook.user.relation.biz.domain.dataobject.FollowingDO;
 import com.lavy.redbook.user.relation.biz.domain.mapper.FollowingDOMapper;
@@ -25,5 +26,15 @@ public class FollowingServiceImpl extends ServiceImpl<FollowingDOMapper, Followi
     @Override
     public List<FollowingDO> selectByUserId(Long userId) {
         return this.baseMapper.selectByUserId(userId);
+    }
+
+    @Override
+    public int deleteFollowing(Long userId, Long followingId) {
+        if (userId == null || followingId == null) {
+            log.warn("invalid params: userId:{} or followingId:{} is null", userId, followingId);
+            return 0;
+        }
+        return this.baseMapper.delete(Wrappers.lambdaQuery(FollowingDO.class).eq(FollowingDO::getUserId, userId)
+                .eq(FollowingDO::getFollowingUserId, followingId));
     }
 }

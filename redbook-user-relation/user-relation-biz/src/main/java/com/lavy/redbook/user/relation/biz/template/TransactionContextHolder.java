@@ -23,13 +23,30 @@ public class TransactionContextHolder {
      * @description: 执行事务
      */
     @Transactional
-    public <T> void executeTransaction(Supplier<T> supplier) {
+    public <T> T executeTransaction(Supplier<T> supplier) {
+        T result = null;
         try {
-            supplier.get();
+            result = supplier.get();
+
             log.debug("事务执行成功");
         } catch (Exception e) {
-            log.error("事务执行失败", e);
+            log.error("事务执行失败：{}", supplier, e);
             throw e;
         }
+        return result;
+    }
+
+    @Transactional
+    public <T> T executeTransaction(Supplier<T> supplier, String message) {
+        T result = null;
+        try {
+            result = supplier.get();
+
+            log.debug("事务执行成功:{}", message);
+        } catch (Exception e) {
+            log.error("事务执行失败：{}", message, e);
+            throw e;
+        }
+        return result;
     }
 }

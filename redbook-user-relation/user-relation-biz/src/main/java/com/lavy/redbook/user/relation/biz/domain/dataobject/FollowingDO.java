@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("t_flowing")
+@TableName("t_following")
 public class FollowingDO {
     private Long id;
 
