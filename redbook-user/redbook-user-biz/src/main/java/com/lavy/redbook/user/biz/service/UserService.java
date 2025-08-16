@@ -1,5 +1,7 @@
 package com.lavy.redbook.user.biz.service;
 
+import java.util.List;
+
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lavy.redbook.framework.common.response.Response;
 import com.lavy.redbook.user.api.dto.req.FindUserByIdReqDTO;
@@ -8,6 +10,7 @@ import com.lavy.redbook.user.api.dto.req.RegisterUserReqDTO;
 import com.lavy.redbook.user.api.dto.req.UpdateUserPasswordReqDTO;
 import com.lavy.redbook.user.api.dto.resp.FindUserByIdRspDTO;
 import com.lavy.redbook.user.api.dto.resp.FindUserByPhoneRspDTO;
+import com.lavy.redbook.user.api.dto.resp.UserInfoDTO;
 import com.lavy.redbook.user.biz.domain.dataobject.UserDO;
 import com.lavy.redbook.user.biz.model.vo.UpdateUserInfoReqVO;
 
@@ -67,4 +70,11 @@ public interface UserService extends IService<UserDO> {
      */
     Response<FindUserByIdRspDTO> findById(FindUserByIdReqDTO findUserByIdReqDTO);
 
+    /**
+     * 根据用户ID列表查询用户信息
+     *
+     * @param userIds 用户ID列表
+     * @return 用户信息列表
+     */
+    Response<List<UserInfoDTO>> listByIds(List<Long> userIds);
 }

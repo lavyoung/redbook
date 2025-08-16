@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.lavy.redbook.framework.biz.operationlog.aspect.ApiOperationLog;
 import com.lavy.redbook.framework.common.response.Response;
+import com.lavy.redbook.user.relation.api.req.vo.FindFollowingListReqVO;
 import com.lavy.redbook.user.relation.api.req.vo.FollowUserReqVO;
 import com.lavy.redbook.user.relation.api.req.vo.UnfollowUserReqVO;
 import com.lavy.redbook.user.relation.biz.service.RelationService;
@@ -52,6 +53,16 @@ public class RelationController {
         return relationService.unfollow(unfollowUserReqVO);
     }
 
+    /**
+     * 关注列表
+     *
+     * @return 响应结果
+     */
+    @PostMapping("/following/list")
+    @ApiOperationLog(description = "关注列表")
+    public Response<?> getFollows(@Validated @RequestBody FindFollowingListReqVO findFollowingListReqVO) {
+        return relationService.findFollowingList(findFollowingListReqVO);
+    }
 
     /**
      * 用户粉丝

@@ -3,22 +3,30 @@ package com.lavy.redbook.user.biz.service.impl;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.SessionCallback;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.lavy.redbook.framework.biz.context.holder.LoginUserContextHolder;
 import com.lavy.redbook.framework.common.eumns.DeletedEnum;
 import com.lavy.redbook.framework.common.eumns.StatusEnum;
@@ -32,6 +40,7 @@ import com.lavy.redbook.user.api.dto.req.RegisterUserReqDTO;
 import com.lavy.redbook.user.api.dto.req.UpdateUserPasswordReqDTO;
 import com.lavy.redbook.user.api.dto.resp.FindUserByIdRspDTO;
 import com.lavy.redbook.user.api.dto.resp.FindUserByPhoneRspDTO;
+import com.lavy.redbook.user.api.dto.resp.UserInfoDTO;
 import com.lavy.redbook.user.biz.constant.RedisKeyConstants;
 import com.lavy.redbook.user.biz.constant.RoleConstants;
 import com.lavy.redbook.user.biz.domain.dataobject.RoleDO;
@@ -76,7 +85,7 @@ public class UserServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implement
     /**
      * 本地缓存
      */
-    private static Cache<Long, FindUserByIdRspDTO> LOCAL_CACHE = Caffeine.newBuilder()
+    private static final Cache<Long, FindUserByIdRspDTO> LOCAL_CACHE = Caffeine.newBuilder()
             .initialCapacity(10000)
             .maximumSize(10000)
             .expireAfterWrite(1, TimeUnit.HOURS)
@@ -315,6 +324,7 @@ public class UserServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implement
                     .id(userDO.getId())
                     .nickName(userDO.getNickname())
                     .avatar(userDO.getAvatar())
+                    .introduction(userDO.getIntroduction())
                     .build();
             taskExecutor.execute(() -> {
                 long expireSecond = 60L * 60 * 24 + RandomUtils.nextInt(0, 60 * 60 * 24);
@@ -328,5 +338,65 @@ public class UserServiceImpl extends ServiceImpl<UserDOMapper, UserDO> implement
             redisTemplate.opsForValue().set(userInfoKey, "null", 60L * 60 * 24, TimeUnit.SECONDS);
         });
         throw new BizException(ResponseCodeEnum.USER_NOT_FOUND);
+    }
+
+    @Override
+    public Response<List<UserInfoDTO>> listByIds(List<Long> userIds) {
+        if (!CollectionUtils.isEmpty(userIds)) {
+            // 构建查询用户key
+            List<String> userInfoKeys = userIds.stream().map(RedisKeyConstants::buildUserInfoKey).toList();
+            // 批量查询用户信息
+            List<Object> userInfoRedis = redisTemplate.opsForValue().multiGet(userInfoKeys);
+            if (!CollectionUtils.isEmpty(userInfoRedis)) {
+                userInfoRedis = userInfoRedis.stream().filter(Objects::nonNull).toList();
+            }
+            List<UserInfoDTO> returnUserDto = Lists.newArrayList();
+            // 转换对象
+            if (!CollectionUtils.isEmpty(userInfoRedis)) {
+                returnUserDto = new ArrayList<>(
+                        userInfoRedis.stream().map(u -> JsonUtils.parseObject(String.valueOf(u), UserInfoDTO.class))
+                                .toList());
+            }
+            // 如果都在Redis中则返回
+            if (userIds.size() == returnUserDto.size()) {
+                return Response.success(returnUserDto);
+            }
+            // 1.缓存要么部分有 要么全没有
+            List<Long> notInRedisUserIds;
+            if (!CollectionUtils.isEmpty(returnUserDto)) {
+                Set<Long> userIdSet = returnUserDto.stream().map(UserInfoDTO::getId).collect(Collectors.toSet());
+                notInRedisUserIds = userIds.stream().filter(id -> !userIdSet.contains(id)).toList();
+            } else {
+                notInRedisUserIds = userIds;
+            }
+            List<UserDO> userDOS = this.baseMapper.selectByIds(notInRedisUserIds);
+            if (!CollectionUtils.isEmpty(userDOS)) {
+                List<UserInfoDTO> dbUserList = userDOS.stream().map(u -> UserInfoDTO.builder()
+                        .id(u.getId())
+                        .nickName(u.getNickname())
+                        .avatar(u.getAvatar())
+                        .introduction(u.getIntroduction())
+                        .build()).toList();
+                returnUserDto.addAll(dbUserList);
+                // 异步缓存
+                taskExecutor.execute(() -> {
+                    redisTemplate.executePipelined(new SessionCallback<>() {
+                        @Override
+                        public Object execute(RedisOperations operations) throws DataAccessException {
+                            dbUserList.forEach(u -> {
+                                long expireSecond = 60L * 60 * 24 + RandomUtils.nextInt(0, 60 * 60 * 24);
+                                operations.opsForValue()
+                                        .set(RedisKeyConstants.buildUserInfoKey(u.getId()), JsonUtils.toJsonString(u),
+                                                expireSecond, TimeUnit.SECONDS);
+                            });
+                            return null;
+                        }
+                    });
+                });
+            }
+            return Response.success(returnUserDto);
+        }
+        return Response.success(Collections.emptyList());
+
     }
 }

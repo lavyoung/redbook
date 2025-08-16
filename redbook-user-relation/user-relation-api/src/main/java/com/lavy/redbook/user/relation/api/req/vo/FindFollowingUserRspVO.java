@@ -1,4 +1,4 @@
-package com.lavy.redbook.user.api.dto.resp;
+package com.lavy.redbook.user.relation.api.req.vo;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,33 +7,22 @@ import lombok.NoArgsConstructor;
 
 /**
  * @author <a href="lavyoung1325@outlook.com">lavy</a>
- * @date: 2025/7/16
+ * @date: 2025/8/16
  * @version: v1.0.0
- * @description: 查询用户信息返回
+ * @description: 关注用户返回参数
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class FindUserByIdRspDTO {
+public class FindFollowingUserRspVO {
 
-    /**
-     * 用户 ID
-     */
-    private Long id;
+    private Long userId;
 
-    /**
-     * 昵称
-     */
-    private String nickName;
-
-    /**
-     * 头像
-     */
     private String avatar;
 
-    /**
-     * 简介
-     */
+    private String nickname;
+
     private String introduction;
+
 }

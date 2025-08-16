@@ -2,11 +2,14 @@ package com.lavy.redbook.user.biz.exception;
 
 import java.util.Optional;
 
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.method.ParameterValidationResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
 import com.lavy.redbook.framework.common.exception.BizException;
 import com.lavy.redbook.framework.common.response.Response;
@@ -47,27 +50,40 @@ public class UserBizExceptionHandler {
      * @param e 异常
      * @return 错误信息
      */
-    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ExceptionHandler(value = {MethodArgumentNotValidException.class, HandlerMethodValidationException.class})
     @ResponseBody
     public Response<Object> handleMethodArgumentNotValidException(HttpServletRequest request,
-            MethodArgumentNotValidException e) {
-
+            Exception e) {
         // 获取参数校验错误信息
         String errorCode = ResponseCodeEnum.PARAM_NOT_VALID.getErrorCode();
-        // 获取参数校验错误信息
-        BindingResult bindingResult = e.getBindingResult();
-
         StringBuilder stringBuilder = new StringBuilder();
-        Optional.of(bindingResult.getFieldErrors()).ifPresent(fieldErrors -> {
-            fieldErrors.forEach(error -> {
-                stringBuilder.append(error.getField())
-                        .append(" ")
-                        .append(error.getDefaultMessage())
-                        .append(", 当前值")
-                        .append(error.getRejectedValue())
-                        .append("; ");
+        if (e instanceof MethodArgumentNotValidException e1) {
+            // 获取参数校验错误信息
+            BindingResult bindingResult = e1.getBindingResult();
+            Optional.of(bindingResult.getFieldErrors()).ifPresent(fieldErrors -> {
+                fieldErrors.forEach(error -> {
+                    stringBuilder.append(error.getField())
+                            .append(" ")
+                            .append(error.getDefaultMessage())
+                            .append(", 当前值")
+                            .append(error.getRejectedValue())
+                            .append("; ");
+                });
             });
-        });
+        }
+        if (e instanceof HandlerMethodValidationException e1) {
+            for (ParameterValidationResult detail : e1.getAllValidationResults()) {
+                if (!CollectionUtils.isEmpty(detail.getResolvableErrors())) {
+                    detail.getResolvableErrors().forEach(error -> {
+                        stringBuilder.append(detail.getMethodParameter().getParameterType().getSimpleName())
+                                .append(": ")
+                                .append(error.getDefaultMessage())
+                                .append("; ");
+                    });
+                }
+            }
+
+        }
         // 构建返回参数
         String errorMessage = stringBuilder.toString();
         log.warn("{} request fail, error: ", request.getRequestURI(), e);

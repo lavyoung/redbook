@@ -1,11 +1,16 @@
 package com.lavy.redbook.user.relation.biz.rpc;
 
+import java.util.List;
+import java.util.Objects;
+
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import com.lavy.redbook.framework.common.response.Response;
 import com.lavy.redbook.user.api.client.UserFeignClient;
 import com.lavy.redbook.user.api.dto.req.FindUserByIdReqDTO;
 import com.lavy.redbook.user.api.dto.resp.FindUserByIdRspDTO;
+import com.lavy.redbook.user.api.dto.resp.UserInfoDTO;
 
 import jakarta.annotation.Resource;
 
@@ -35,4 +40,20 @@ public class UserRpcService {
         }
         return null;
     }
+
+    /**
+     * 批量查询用户信息
+     *
+     * @param userIds 用户ID
+     * @return 用户信息
+     */
+    public List<UserInfoDTO> findByIds(List<Long> userIds) {
+        Response<List<UserInfoDTO>> response = userFeignClient.findByIds(userIds);
+        if (!response.isSuccess() || Objects.isNull(response.getData()) || CollectionUtils.isEmpty(
+                response.getData())) {
+            return null;
+        }
+        return response.getData();
+    }
+
 }

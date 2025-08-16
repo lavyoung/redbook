@@ -1,5 +1,7 @@
 package com.lavy.redbook.user.biz.controller;
 
+import java.util.List;
+
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,10 +19,13 @@ import com.lavy.redbook.user.api.dto.req.RegisterUserReqDTO;
 import com.lavy.redbook.user.api.dto.req.UpdateUserPasswordReqDTO;
 import com.lavy.redbook.user.api.dto.resp.FindUserByIdRspDTO;
 import com.lavy.redbook.user.api.dto.resp.FindUserByPhoneRspDTO;
+import com.lavy.redbook.user.api.dto.resp.UserInfoDTO;
 import com.lavy.redbook.user.biz.model.vo.UpdateUserInfoReqVO;
 import com.lavy.redbook.user.biz.service.UserService;
 
 import jakarta.annotation.Resource;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -92,9 +97,23 @@ public class UserController {
         return userService.pushUserRoles(userId);
     }
 
+    /**
+     * 查询用户信息
+     */
     @PostMapping("/findById")
     @ApiOperationLog(description = "查询用户信息")
     public Response<FindUserByIdRspDTO> findById(@Validated @RequestBody FindUserByIdReqDTO findUserByIdReqDTO) {
         return userService.findById(findUserByIdReqDTO);
+    }
+
+    /**
+     * 批量查询用户信息
+     */
+    @PostMapping("/findByIds")
+    @ApiOperationLog(description = "批量查询用户信息")
+    public Response<List<UserInfoDTO>> findByIds(
+            @NotNull(message = "ID不能为空") @Size(min = 1, max = 10, message = "最多查十条") @RequestBody
+            List<Long> userIds) {
+        return userService.listByIds(userIds);
     }
 }

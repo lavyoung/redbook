@@ -1,9 +1,11 @@
 package com.lavy.redbook.user.relation.biz.service.impl;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import org.apache.rocketmq.client.producer.SendCallback;
 import org.apache.rocketmq.client.producer.SendResult;
@@ -19,13 +21,17 @@ import org.springframework.util.CollectionUtils;
 
 import com.lavy.redbook.framework.biz.context.holder.LoginUserContextHolder;
 import com.lavy.redbook.framework.common.exception.BizException;
+import com.lavy.redbook.framework.common.response.PageResponse;
 import com.lavy.redbook.framework.common.response.Response;
 import com.lavy.redbook.framework.common.util.DateUtils;
 import com.lavy.redbook.framework.common.util.JsonUtils;
 import com.lavy.redbook.framework.common.util.RandomUtils;
 import com.lavy.redbook.user.api.dto.resp.FindUserByIdRspDTO;
+import com.lavy.redbook.user.api.dto.resp.UserInfoDTO;
 import com.lavy.redbook.user.relation.api.req.dto.FollowUserMqDTO;
 import com.lavy.redbook.user.relation.api.req.dto.UnfollowUserMqDTO;
+import com.lavy.redbook.user.relation.api.req.vo.FindFollowingListReqVO;
+import com.lavy.redbook.user.relation.api.req.vo.FindFollowingUserRspVO;
 import com.lavy.redbook.user.relation.api.req.vo.FollowUserReqVO;
 import com.lavy.redbook.user.relation.api.req.vo.UnfollowUserReqVO;
 import com.lavy.redbook.user.relation.biz.constant.MQConstants;
@@ -260,6 +266,55 @@ public class RelationServiceImpl implements RelationService {
             }
         });
         return Response.success();
+    }
+
+    @Override
+    public PageResponse<FindFollowingUserRspVO> findFollowingList(FindFollowingListReqVO reqVO) {
+        // 页码
+        Integer pageNo = reqVO.getPageNo();
+
+        // 先从 Redis 中查询
+        String followingListRedisKey = RedisKeyConstants.buildUserFollowingKey(reqVO.getUserId());
+
+        // 查询目标用户关注列表 ZSet 的总大小
+        long total = redisTemplate.opsForZSet().zCard(followingListRedisKey);
+        List<FindFollowingUserRspVO> userRspVOS = new ArrayList<>();
+        if (total > 0) {
+            // 计算最大页码
+            long maxPageNo =
+                    total % reqVO.getPageSize() == 0 ? total / reqVO.getPageSize() : total / reqVO.getPageSize() + 1;
+            if (pageNo > maxPageNo) {
+                return PageResponse.success(userRspVOS, pageNo, reqVO.getPageSize(), total);
+            }
+            Set<Object> userIdObjets = redisTemplate.opsForZSet()
+                    .reverseRangeByScore(followingListRedisKey, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY,
+                            (long) (pageNo - 1) * reqVO.getPageSize(), reqVO.getPageSize());
+            if (!CollectionUtils.isEmpty(userIdObjets)) {
+                // 提取所有用户 ID 到集合中
+                List<Long> userIds = userIdObjets.stream().map(object -> Long.valueOf(object.toString())).toList();
+
+                // RPC: 批量查询用户信息
+                List<UserInfoDTO> dtos = userRpcService.findByIds(userIds);
+
+                // 若不为空，DTO 转 VO
+                if (!CollectionUtils.isEmpty(dtos)) {
+                    userRspVOS = dtos.stream()
+                            .map(dto -> FindFollowingUserRspVO.builder()
+                                    .userId(dto.getId())
+                                    .avatar(dto.getAvatar())
+                                    .nickname(dto.getNickName())
+                                    .introduction(dto.getIntroduction())
+                                    .build())
+                            .toList();
+                }
+            }
+        } else {
+
+            // TODO: 若 Redis 中没有数据，则从数据库查询
+
+            // TODO: 异步将关注列表全量同步到 Redis
+        }
+        return PageResponse.success(userRspVOS, pageNo, reqVO.getPageSize(), total);
     }
 
     @Override

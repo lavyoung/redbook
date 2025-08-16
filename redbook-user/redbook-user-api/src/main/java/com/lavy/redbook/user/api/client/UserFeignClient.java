@@ -1,5 +1,7 @@
 package com.lavy.redbook.user.api.client;
 
+import java.util.List;
+
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +16,7 @@ import com.lavy.redbook.user.api.dto.req.RegisterUserReqDTO;
 import com.lavy.redbook.user.api.dto.req.UpdateUserPasswordReqDTO;
 import com.lavy.redbook.user.api.dto.resp.FindUserByIdRspDTO;
 import com.lavy.redbook.user.api.dto.resp.FindUserByPhoneRspDTO;
+import com.lavy.redbook.user.api.dto.resp.UserInfoDTO;
 
 /**
  * @author <a href="lavyoung1325@outlook.com">lavy</a>
@@ -69,4 +72,13 @@ public interface UserFeignClient {
      */
     @PostMapping(value = PREFIX + "/findById")
     Response<FindUserByIdRspDTO> findById(@RequestBody FindUserByIdReqDTO findUserByIdReqDTO);
+
+    /**
+     * 根据用户 ID 批量查询用户信息
+     *
+     * @param userIds 用户ID
+     * @return 用户信息
+     */
+    @PostMapping(PREFIX + "/findByIds")
+    Response<List<UserInfoDTO>> findByIds(@RequestBody List<Long> userIds);
 }

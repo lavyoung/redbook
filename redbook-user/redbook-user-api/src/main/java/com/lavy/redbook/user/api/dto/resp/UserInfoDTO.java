@@ -7,16 +7,15 @@ import lombok.NoArgsConstructor;
 
 /**
  * @author <a href="lavyoung1325@outlook.com">lavy</a>
- * @date: 2025/7/16
+ * @date: 2025/8/16
  * @version: v1.0.0
- * @description: 查询用户信息返回
+ * @description: 用户信息
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class FindUserByIdRspDTO {
-
+public class UserInfoDTO {
     /**
      * 用户 ID
      */

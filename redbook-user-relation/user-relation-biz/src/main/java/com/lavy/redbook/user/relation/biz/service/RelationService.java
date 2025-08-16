@@ -1,6 +1,9 @@
 package com.lavy.redbook.user.relation.biz.service;
 
+import com.lavy.redbook.framework.common.response.PageResponse;
 import com.lavy.redbook.framework.common.response.Response;
+import com.lavy.redbook.user.relation.api.req.vo.FindFollowingListReqVO;
+import com.lavy.redbook.user.relation.api.req.vo.FindFollowingUserRspVO;
 import com.lavy.redbook.user.relation.api.req.vo.FollowUserReqVO;
 import com.lavy.redbook.user.relation.api.req.vo.UnfollowUserReqVO;
 
@@ -27,6 +30,14 @@ public interface RelationService {
      * @return 响应
      */
     Response<?> unfollow(UnfollowUserReqVO unfollowUserReqVO);
+
+    /**
+     * 查询关注列表
+     *
+     * @param findFollowingListReqVO 查询关注列表请求参数
+     * @return 响应
+     */
+    PageResponse<FindFollowingUserRspVO> findFollowingList(FindFollowingListReqVO findFollowingListReqVO);
 
     /**
      * 获取粉丝
