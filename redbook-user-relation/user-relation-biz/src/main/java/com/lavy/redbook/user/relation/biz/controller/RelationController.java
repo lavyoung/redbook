@@ -8,10 +8,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lavy.redbook.framework.biz.operationlog.aspect.ApiOperationLog;
+import com.lavy.redbook.framework.common.response.PageResponse;
 import com.lavy.redbook.framework.common.response.Response;
 import com.lavy.redbook.user.relation.api.req.vo.FindFollowingListReqVO;
+import com.lavy.redbook.user.relation.api.req.vo.FindFollowingUserRspVO;
 import com.lavy.redbook.user.relation.api.req.vo.FollowUserReqVO;
 import com.lavy.redbook.user.relation.api.req.vo.UnfollowUserReqVO;
+import com.lavy.redbook.user.relation.biz.enums.ResponseCodeEnum;
 import com.lavy.redbook.user.relation.biz.service.RelationService;
 
 import jakarta.annotation.Resource;
@@ -60,7 +63,11 @@ public class RelationController {
      */
     @PostMapping("/following/list")
     @ApiOperationLog(description = "关注列表")
-    public Response<?> getFollows(@Validated @RequestBody FindFollowingListReqVO findFollowingListReqVO) {
+    public PageResponse<FindFollowingUserRspVO> getFollows(
+            @Validated @RequestBody FindFollowingListReqVO findFollowingListReqVO) {
+        if (findFollowingListReqVO.getPageSize() > 10) {
+            return (PageResponse) Response.fail(ResponseCodeEnum.PAGE_SIZE_LIMIT);
+        }
         return relationService.findFollowingList(findFollowingListReqVO);
     }
 

@@ -42,7 +42,13 @@ public class PageResponse<T> extends Response<List<T>> {
         return response;
     }
 
-
+    /**
+     * 计算总页数
+     *
+     * @param total 总数
+     * @param pageSize 页大小
+     * @return 总页数
+     */
     private static long calcTotalPage(long total, long pageSize) {
         if (total == 0 || pageSize == 0) {
             return 0;

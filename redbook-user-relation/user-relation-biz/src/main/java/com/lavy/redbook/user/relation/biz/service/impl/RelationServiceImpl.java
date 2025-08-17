@@ -15,10 +15,12 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.scripting.support.ResourceScriptSource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import com.google.common.collect.Lists;
 import com.lavy.redbook.framework.biz.context.holder.LoginUserContextHolder;
 import com.lavy.redbook.framework.common.exception.BizException;
 import com.lavy.redbook.framework.common.response.PageResponse;
@@ -29,6 +31,7 @@ import com.lavy.redbook.framework.common.util.RandomUtils;
 import com.lavy.redbook.user.api.dto.resp.FindUserByIdRspDTO;
 import com.lavy.redbook.user.api.dto.resp.UserInfoDTO;
 import com.lavy.redbook.user.relation.api.req.dto.FollowUserMqDTO;
+import com.lavy.redbook.user.relation.api.req.dto.FollowingPageReq;
 import com.lavy.redbook.user.relation.api.req.dto.UnfollowUserMqDTO;
 import com.lavy.redbook.user.relation.api.req.vo.FindFollowingListReqVO;
 import com.lavy.redbook.user.relation.api.req.vo.FindFollowingUserRspVO;
@@ -69,6 +72,9 @@ public class RelationServiceImpl implements RelationService {
     private RocketMQTemplate rocketMQTemplate;
     @Resource
     private FansService fansService;
+    @Resource(name = "taskExecutor")
+    private ThreadPoolTaskExecutor threadPoolTaskExecutor;
+
 
     /**
      * 关注用户
@@ -271,7 +277,7 @@ public class RelationServiceImpl implements RelationService {
     @Override
     public PageResponse<FindFollowingUserRspVO> findFollowingList(FindFollowingListReqVO reqVO) {
         // 页码
-        Integer pageNo = reqVO.getPageNo();
+        long pageNo = reqVO.getPageNo();
 
         // 先从 Redis 中查询
         String followingListRedisKey = RedisKeyConstants.buildUserFollowingKey(reqVO.getUserId());
@@ -309,13 +315,78 @@ public class RelationServiceImpl implements RelationService {
                 }
             }
         } else {
-
-            // TODO: 若 Redis 中没有数据，则从数据库查询
-
-            // TODO: 异步将关注列表全量同步到 Redis
+            // 若 Redis 中没有数据，则从数据库查询
+            total = followingService.countByUserId(reqVO.getUserId());
+            // 若没有数据，则返回
+            if (total <= 0) {
+                return PageResponse.success(userRspVOS, pageNo, reqVO.getPageSize(), total);
+            }
+            long maxPageNo =
+                    total % reqVO.getPageSize() == 0 ? total / reqVO.getPageSize() : total / reqVO.getPageSize() + 1;
+            // 若页码大于最大页码，则返回
+            if (pageNo > maxPageNo) {
+                return PageResponse.success(userRspVOS, pageNo, reqVO.getPageSize(), total);
+            }
+            FollowingPageReq pageReq = FollowingPageReq.builder().userId(reqVO.getUserId())
+                    .build();
+            pageReq.setPageNo(pageNo);
+            pageReq.setPageSize(reqVO.getPageSize());
+            PageResponse<FollowingDO> followingDOPageResponse = followingService.pageDO(pageReq);
+            userRspVOS = getUserRspVOS(followingDOPageResponse);
+            // 异步将关注列表全量同步到 Redis
+            threadPoolTaskExecutor.execute(() -> syncFolloingDataToRedis(pageReq));
         }
         return PageResponse.success(userRspVOS, pageNo, reqVO.getPageSize(), total);
     }
+
+    /**
+     * 同步关注列表数据到 Redis
+     */
+    private void syncFolloingDataToRedis(FollowingPageReq pageReq) {
+        pageReq.setPageSize(null);
+        pageReq.setPageNo(null);
+        pageReq.setOffset(null);
+        PageResponse<FollowingDO> response = followingService.pageDO(pageReq);
+        if (response.getTotal() > 0 && response.getData() != null) {
+            Object[] luaArgs = buildLuaArgs(response.getData(), 60 * 60 * 24 + RandomUtils.randomNumber(60 * 60 * 24));
+            DefaultRedisScript<Long> script2 = new DefaultRedisScript<>();
+            script2.setScriptSource(
+                    new ResourceScriptSource(new ClassPathResource("/lua/follow_batch_add_and_expire.lua")));
+            script2.setResultType(Long.class);
+            redisTemplate.execute(script2, Collections.singletonList(RedisKeyConstants.buildUserFollowingKey(
+                    pageReq.getUserId())), luaArgs);
+        }
+    }
+
+    /**
+     * 获取用户信息
+     *
+     * @param followingDOPageResponse 分页数据
+     * @return 列表
+     */
+    private List<FindFollowingUserRspVO> getUserRspVOS(PageResponse<FollowingDO> followingDOPageResponse) {
+        List<FindFollowingUserRspVO> userRspVOS = new ArrayList<>();
+        if (followingDOPageResponse.getData() != null) {
+            List<Long> followUserIds =
+                    followingDOPageResponse.getData().stream().map(FollowingDO::getFollowingUserId).toList();
+            List<List<Long>> partition = Lists.partition(followUserIds, 10);
+            for (List<Long> longs : partition) {
+                List<UserInfoDTO> userInfoDTOS = userRpcService.findByIds(longs);
+                if (!CollectionUtils.isEmpty(userInfoDTOS)) {
+                    userRspVOS.addAll(userInfoDTOS.stream()
+                            .map(dto -> FindFollowingUserRspVO.builder()
+                                    .userId(dto.getId())
+                                    .avatar(dto.getAvatar())
+                                    .nickname(dto.getNickName())
+                                    .introduction(dto.getIntroduction())
+                                    .build())
+                            .toList());
+                }
+            }
+        }
+        return userRspVOS;
+    }
+
 
     @Override
     public Response<?> getFans() {

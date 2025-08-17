@@ -23,6 +23,7 @@ public enum ResponseCodeEnum implements BaseExceptionInterface {
     NOT_FOLLOWED("RELATION-20006", "您未关注对方，无法取关"),
     UNFOLLOW_SELF("RELATION-20007", "无法取关自己"),
     UNFOLLOW_USER_NOT_EXISTED("RELATION-20008", "取关的用户不存在"),
+    PAGE_SIZE_LIMIT("RELATION-20009", "最大查询限制10"),
     ;
 
     private final String errorCode;

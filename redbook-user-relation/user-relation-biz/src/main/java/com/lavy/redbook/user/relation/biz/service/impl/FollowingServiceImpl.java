@@ -1,11 +1,15 @@
 package com.lavy.redbook.user.relation.biz.service.impl;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lavy.redbook.framework.common.response.PageResponse;
+import com.lavy.redbook.user.relation.api.req.dto.FollowingPageReq;
 import com.lavy.redbook.user.relation.biz.domain.dataobject.FollowingDO;
 import com.lavy.redbook.user.relation.biz.domain.mapper.FollowingDOMapper;
 import com.lavy.redbook.user.relation.biz.service.FollowingService;
@@ -36,5 +40,27 @@ public class FollowingServiceImpl extends ServiceImpl<FollowingDOMapper, Followi
         }
         return this.baseMapper.delete(Wrappers.lambdaQuery(FollowingDO.class).eq(FollowingDO::getUserId, userId)
                 .eq(FollowingDO::getFollowingUserId, followingId));
+    }
+
+    @Override
+    public long countByUserId(Long userId) {
+        if (userId == null) {
+            return 0;
+        }
+        return this.baseMapper.selectCount(Wrappers.lambdaQuery(FollowingDO.class).eq(FollowingDO::getUserId, userId));
+    }
+
+    @Override
+    public PageResponse<FollowingDO> pageDO(FollowingPageReq pageReq) {
+        pageReq.calculateOffset();
+        long count = this.baseMapper.pageCount(pageReq);
+        if (count <= 0) {
+            return PageResponse.success(Collections.emptyList(),
+                    Objects.isNull(pageReq.getPageNo()) ? 1 : pageReq.getPageNo(),
+                    Objects.isNull(pageReq.getPageSize()) ? 0 : pageReq.getPageSize(), count);
+        }
+        return PageResponse.success(this.baseMapper.pageDO(pageReq),
+                Objects.isNull(pageReq.getPageNo()) ? 1 : pageReq.getPageNo(),
+                Objects.isNull(pageReq.getPageSize()) ? 0 : pageReq.getPageSize(), count);
     }
 }

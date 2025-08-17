@@ -3,6 +3,7 @@ package com.lavy.redbook.user.relation.biz.domain.mapper;
 import java.util.List;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.lavy.redbook.user.relation.api.req.dto.FollowingPageReq;
 import com.lavy.redbook.user.relation.biz.domain.dataobject.FollowingDO;
 
 /**
@@ -70,5 +71,19 @@ public interface FollowingDOMapper extends BaseMapper<FollowingDO> {
      */
     List<FollowingDO> selectByUserId(Long userId);
 
-    ;
+    /**
+     * 分页查询
+     *
+     * @param pageReq 分页参数
+     * @return 分页结果
+     */
+    List<FollowingDO> pageDO(FollowingPageReq pageReq);
+
+    /**
+     * 分页查询数量
+     *
+     * @param pageReq 分页参数
+     * @return 分页结果数量
+     */
+    long pageCount(FollowingPageReq pageReq);
 }
