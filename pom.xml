@@ -22,6 +22,7 @@
         <module>redbook-distributed-id-generator</module>
         <module>redbook-note</module>
         <module>redbook-user-relation</module>
+        <module>redbook-count</module>
     </modules>
 
     <packaging>pom</packaging>
