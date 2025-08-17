@@ -1,5 +1,9 @@
 package com.lavy.redbook.user.relation.biz.domain.mapper;
 
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.lavy.redbook.user.relation.biz.domain.dataobject.FansDO;
 
@@ -59,4 +63,24 @@ public interface FansDOMapper extends BaseMapper<FansDO> {
      * @return 更新结果
      */
     int updateByPrimaryKey(FansDO record);
+
+    /**
+     * 查询记录总数
+     *
+     * @param userId 用户ID
+     * @return 记录总数
+     */
+    long selectCountByUserId(Long userId);
+
+
+    /**
+     * 分页查询
+     *
+     * @param userId 用户ID
+     * @param offset 偏移量
+     * @param limit 查询数量
+     */
+    List<FansDO> selectPageListByUserId(@Param("userId") Long userId,
+            @Param("offset") long offset,
+            @Param("limit") long limit);
 }

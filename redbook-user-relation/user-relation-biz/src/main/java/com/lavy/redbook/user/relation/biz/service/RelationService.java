@@ -2,6 +2,8 @@ package com.lavy.redbook.user.relation.biz.service;
 
 import com.lavy.redbook.framework.common.response.PageResponse;
 import com.lavy.redbook.framework.common.response.Response;
+import com.lavy.redbook.user.relation.api.req.dto.FindFansListReqVO;
+import com.lavy.redbook.user.relation.api.req.vo.FindFansUserRspVO;
 import com.lavy.redbook.user.relation.api.req.vo.FindFollowingListReqVO;
 import com.lavy.redbook.user.relation.api.req.vo.FindFollowingUserRspVO;
 import com.lavy.redbook.user.relation.api.req.vo.FollowUserReqVO;
@@ -45,4 +47,12 @@ public interface RelationService {
      * @return 响应
      */
     Response<?> getFans();
+
+    /**
+     * 查询关注列表
+     *
+     * @param findFansListReqVO 查询参数
+     * @return 关注列表
+     */
+    PageResponse<FindFansUserRspVO> findFansList(FindFansListReqVO findFansListReqVO);
 }

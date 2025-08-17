@@ -41,4 +41,14 @@ public class FansServiceImpl extends ServiceImpl<FansDOMapper, FansDO> implement
         return this.baseMapper.delete(
                 Wrappers.lambdaQuery(FansDO.class).eq(FansDO::getUserId, userId).eq(FansDO::getFansUserId, fansId));
     }
+
+    @Override
+    public long selectCountByUserId(Long userId) {
+        return this.baseMapper.selectCountByUserId(userId);
+    }
+
+    @Override
+    public List<FansDO> selectPageListByUserId(Long userId, long offset, long limit) {
+        return this.baseMapper.selectPageListByUserId(userId, offset, limit);
+    }
 }

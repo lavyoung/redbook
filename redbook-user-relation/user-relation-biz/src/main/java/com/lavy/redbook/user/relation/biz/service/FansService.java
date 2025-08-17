@@ -29,4 +29,22 @@ public interface FansService extends IService<FansDO> {
      * @return 删除结果
      */
     int deleteFans(Long userId, Long fansId);
+
+    /**
+     * 统计
+     *
+     * @param userId 用户ID
+     * @return 粉丝数量
+     */
+    long selectCountByUserId(Long userId);
+
+    /**
+     * 分页查询
+     *
+     * @param userId 用户ID
+     * @param offset 偏移量
+     * @param limit 限制数量
+     * @return 粉丝列表
+     */
+    List<FansDO> selectPageListByUserId(Long userId, long offset, long limit);
 }

@@ -30,9 +30,11 @@ import com.lavy.redbook.framework.common.util.JsonUtils;
 import com.lavy.redbook.framework.common.util.RandomUtils;
 import com.lavy.redbook.user.api.dto.resp.FindUserByIdRspDTO;
 import com.lavy.redbook.user.api.dto.resp.UserInfoDTO;
+import com.lavy.redbook.user.relation.api.req.dto.FindFansListReqVO;
 import com.lavy.redbook.user.relation.api.req.dto.FollowUserMqDTO;
 import com.lavy.redbook.user.relation.api.req.dto.FollowingPageReq;
 import com.lavy.redbook.user.relation.api.req.dto.UnfollowUserMqDTO;
+import com.lavy.redbook.user.relation.api.req.vo.FindFansUserRspVO;
 import com.lavy.redbook.user.relation.api.req.vo.FindFollowingListReqVO;
 import com.lavy.redbook.user.relation.api.req.vo.FindFollowingUserRspVO;
 import com.lavy.redbook.user.relation.api.req.vo.FollowUserReqVO;
@@ -397,6 +399,119 @@ public class RelationServiceImpl implements RelationService {
         List<FansDO> fansDOS = fansService.getFans(userId);
         return Response.success(fansDOS);
     }
+
+    @Override
+    public PageResponse<FindFansUserRspVO> findFansList(FindFansListReqVO findFansListReqVO) {
+        // 想要查询的用户 ID
+        Long userId = findFansListReqVO.getUserId();
+        // 页码
+        long pageNo = findFansListReqVO.getPageNo();
+
+        // 先从 Redis 中查询
+        String fansListRedisKey = RedisKeyConstants.buildUserFansKey(userId);
+
+        // 查询目标用户粉丝列表 ZSet 的总大小
+        long total = redisTemplate.opsForZSet().zCard(fansListRedisKey);
+
+        // 返参
+        List<FindFansUserRspVO> findFansUserRspVOS = null;
+
+        // 每页展示 10 条数据
+        long limit = 10;
+
+        if (total > 0) { // 缓存中有数据
+            // 计算一共多少页
+            long totalPage = total % findFansListReqVO.getPageSize() == 0 ? total / findFansListReqVO.getPageSize()
+                                                                          : total / findFansListReqVO.getPageSize() + 1;
+            // 请求的页码超出了总页数
+            if (pageNo > totalPage) {
+                return PageResponse.success(Collections.emptyList(), pageNo, findFansListReqVO.getPageSize(), total);
+            }
+
+            // 准备从 Redis 中查询 ZSet 分页数据
+            // 每页 10 个元素，计算偏移量
+            long offset = PageResponse.calcOffset(pageNo, limit);
+
+            // 使用 ZREVRANGEBYSCORE 命令按 score 降序获取元素，同时使用 LIMIT 子句实现分页
+            Set<Object> followingUserIdsSet = redisTemplate.opsForZSet()
+                    .reverseRangeByScore(fansListRedisKey, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, offset,
+                            limit);
+
+            if (!CollectionUtils.isEmpty(followingUserIdsSet)) {
+                // 提取所有用户 ID 到集合中
+                List<Long> userIds =
+                        followingUserIdsSet.stream().map(object -> Long.valueOf(object.toString())).toList();
+
+                // RPC: 批量查询用户信息
+                findFansUserRspVOS = rpcUserServiceAndCountServiceAndDTO2VO(userIds, findFansUserRspVOS);
+            }
+        } else { // 若 Redis 缓存中无数据，则查询数据库
+            // 先查询记录总量
+            total = fansService.selectCountByUserId(userId);
+
+            // 计算一共多少页
+            long totalPage = total % findFansListReqVO.getPageSize() == 0 ? total / findFansListReqVO.getPageSize()
+                                                                          : total / findFansListReqVO.getPageSize() + 1;
+
+            // 请求的页码超出了总页数（只允许查询前 500 页）
+            if (pageNo > 500 || pageNo > totalPage) {
+                return PageResponse.success(null, pageNo, findFansListReqVO.getPageSize(), total);
+            }
+
+            // 偏移量
+            long offset = PageResponse.calcOffset(pageNo, limit);
+
+            // 分页查询
+            List<FansDO> fansDOS = fansService.selectPageListByUserId(userId, offset, limit);
+
+            // 若记录不为空
+            if (!CollectionUtils.isEmpty(fansDOS)) {
+                // 提取所有粉丝用户 ID 到集合中
+                List<Long> userIds = fansDOS.stream().map(FansDO::getFansUserId).toList();
+
+                // RPC: 调用用户服务、计数服务，并将 DTO 转换为 VO
+                findFansUserRspVOS = rpcUserServiceAndCountServiceAndDTO2VO(userIds, findFansUserRspVOS);
+
+                // 异步将粉丝列表同步到 Redis（最多5000条）
+                threadPoolTaskExecutor.submit(() -> syncFansList2Redis(userId));
+            }
+        }
+
+        return PageResponse.success(findFansUserRspVOS, pageNo, findFansListReqVO.getPageSize(), total);
+    }
+
+    /**
+     * 粉丝列表同步到 Redis（最多5000条）
+     */
+    private void syncFansList2Redis(Long userId) {
+        // TODO
+    }
+
+    /**
+     * RPC: 调用用户服务、计数服务，并将 DTO 转换为 VO 粉丝列表
+     */
+    private List<FindFansUserRspVO> rpcUserServiceAndCountServiceAndDTO2VO(List<Long> userIds,
+            List<FindFansUserRspVO> findFansUserRspVOS) {
+        // RPC: 批量查询用户信息
+        List<UserInfoDTO> findUserByIdRspDTOS = userRpcService.findByIds(userIds);
+
+        // TODO RPC: 批量查询用户的计数数据（笔记总数、粉丝总数）
+
+        // 若不为空，DTO 转 VO
+        if (!CollectionUtils.isEmpty(findUserByIdRspDTOS)) {
+            findFansUserRspVOS = findUserByIdRspDTOS.stream()
+                    .map(dto -> FindFansUserRspVO.builder()
+                            .userId(dto.getId())
+                            .avatar(dto.getAvatar())
+                            .nickname(dto.getNickName())
+                            .noteTotal(0L) // TODO: 这块的数据暂无，后续补充
+                            .fansTotal(0L) // TODO: 这块的数据暂无，后续补充
+                            .build())
+                    .toList();
+        }
+        return findFansUserRspVOS;
+    }
+
 
     /**
      * 校验 Lua 脚本结果，根据状态码抛出对应的业务异常
