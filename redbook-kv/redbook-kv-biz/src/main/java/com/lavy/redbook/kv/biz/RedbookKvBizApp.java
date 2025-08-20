@@ -10,7 +10,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @description: kv业务启动类
  */
 @SpringBootApplication
-
 public class RedbookKvBizApp {
 
     public static void main(String[] args) {

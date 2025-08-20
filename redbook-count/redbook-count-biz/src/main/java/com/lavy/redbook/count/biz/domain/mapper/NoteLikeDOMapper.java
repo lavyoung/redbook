@@ -10,15 +10,52 @@ import com.lavy.redbook.count.biz.domain.dataobject.NoteLikeDO;
  * @description:
  */
 public interface NoteLikeDOMapper extends BaseMapper<NoteLikeDO> {
+
+    /**
+     * 删除
+     *
+     * @param id id
+     * @return 删除数量
+     */
     int deleteByPrimaryKey(Long id);
 
+    /**
+     * 新增
+     *
+     * @param record 记录
+     * @return 新增数量
+     */
     int insert(NoteLikeDO record);
 
+    /**
+     * 新增
+     *
+     * @param record 记录
+     * @return 新增数量
+     */
     int insertSelective(NoteLikeDO record);
 
+    /**
+     * 查询
+     *
+     * @param id id
+     * @return 记录
+     */
     NoteLikeDO selectByPrimaryKey(Long id);
 
+    /**
+     * 更新
+     *
+     * @param record 记录
+     * @return 更新数量
+     */
     int updateByPrimaryKeySelective(NoteLikeDO record);
 
+    /**
+     * 更新
+     *
+     * @param record 记录
+     * @return 更新数量
+     */
     int updateByPrimaryKey(NoteLikeDO record);
 }

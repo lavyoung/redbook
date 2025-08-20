@@ -61,7 +61,7 @@ public interface UserFeignClient {
      *
      * @return 无
      */
-    @GetMapping("/pushUserRoles")
+    @GetMapping(PREFIX + "/pushUserRoles")
     Response<?> pushUserRoles(@RequestParam("userId") Long userId);
 
     /**

@@ -12,6 +12,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  */
 @SpringBootApplication
 @EnableFeignClients(basePackages = "com.lavy.redbook")
+
 public class RedbookCountApp {
 
     public static void main(String[] args) {
